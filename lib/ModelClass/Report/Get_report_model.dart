@@ -25,6 +25,9 @@ class GetReportModel {
     num? finalAmount,
     num? finalQty,
     String? userName,
+    String? location,
+    String? fromDate,
+    String? toDate,
     String? businessName,
     String? address,
     String? phone,
@@ -41,6 +44,9 @@ class GetReportModel {
     _finalAmount = finalAmount;
     _finalQty = finalQty;
     _userName = userName;
+    _location = location;
+    _fromDate = fromDate;
+    _toDate = toDate;
     _businessName = businessName;
     _address = address;
     _phone = phone;
@@ -63,6 +69,9 @@ class GetReportModel {
     _finalAmount = json['finalAmount'];
     _finalQty = json['finalQty'];
     _userName = json['UserName'];
+    _location = json['location'];
+    _fromDate = json['from_date'];
+    _toDate = json['to_date'];
     _businessName = json['businessName'];
     _address = json['address'];
     _phone = json['phone'];
@@ -83,6 +92,9 @@ class GetReportModel {
   num? _finalAmount;
   num? _finalQty;
   String? _userName;
+  String? _location;
+  String? _fromDate;
+  String? _toDate;
   String? _businessName;
   String? _address;
   String? _phone;
@@ -99,6 +111,9 @@ class GetReportModel {
     num? finalAmount,
     num? finalQty,
     String? userName,
+    String? location,
+    String? fromDate,
+    String? toDate,
     String? businessName,
     String? address,
     String? phone,
@@ -115,6 +130,9 @@ class GetReportModel {
         finalAmount: finalAmount ?? _finalAmount,
         finalQty: finalQty ?? _finalQty,
         userName: userName ?? _userName,
+        location: location ?? _location,
+        fromDate: fromDate ?? _fromDate,
+        toDate: toDate ?? _toDate,
         businessName: businessName ?? _businessName,
         address: address ?? _address,
         phone: phone ?? _phone,
@@ -130,6 +148,9 @@ class GetReportModel {
   num? get finalAmount => _finalAmount;
   num? get finalQty => _finalQty;
   String? get userName => _userName;
+  String? get location => _location;
+  String? get fromDate => _fromDate;
+  String? get toDate => _toDate;
   String? get businessName => _businessName;
   String? get address => _address;
   String? get phone => _phone;
@@ -149,6 +170,9 @@ class GetReportModel {
     map['finalAmount'] = _finalAmount;
     map['finalQty'] = _finalQty;
     map['UserName'] = _userName;
+    map['location'] = _location;
+    map['from_date'] = _fromDate;
+    map['to_date'] = _toDate;
     map['businessName'] = _businessName;
     map['address'] = _address;
     map['phone'] = _phone;

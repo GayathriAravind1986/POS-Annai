@@ -48,24 +48,27 @@ class ReportViewViewState extends State<ReportViewView> {
 
   String? errorMessage;
   bool reportLoad = false;
-  final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  final yesterdayDate = DateFormat('yyyy-MM-dd')
-      .format(DateTime.now().subtract(Duration(days: 1)));
+  final String todayDisplayDate =
+      DateFormat('dd/MM/yyyy').format(DateTime.now()); // UI
+  final String todayApiDate =
+      DateFormat('yyyy-MM-dd').format(DateTime.now()); // API
   final TextEditingController fromDateController = TextEditingController();
   final TextEditingController toDateController = TextEditingController();
-
+  bool includeProduct = true;
   DateTime? fromDate;
   DateTime? toDate;
   DateTime? _fromDate;
   DateTime? _toDate;
   final DateTime now = DateTime.now();
   Future<void> _selectDate(BuildContext context, bool isFromDate) async {
+    final DateTime now = DateTime.now();
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate:
           isFromDate ? (_fromDate ?? now) : (_toDate ?? (_fromDate ?? now)),
       firstDate: isFromDate ? DateTime(2000) : (_fromDate ?? DateTime(2000)),
-      lastDate: DateTime(2100),
+      lastDate: isFromDate ? (_toDate ?? now) : now,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -76,7 +79,7 @@ class ReportViewViewState extends State<ReportViewView> {
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: appPrimaryColor, // OK/Cancel button
+                foregroundColor: appPrimaryColor,
               ),
             ),
           ),
@@ -102,6 +105,15 @@ class ReportViewViewState extends State<ReportViewView> {
           String formattedFromDate =
               DateFormat('yyyy-MM-dd').format(_fromDate!);
           String formattedToDate = DateFormat('yyyy-MM-dd').format(_toDate!);
+
+          context.read<ReportTodayBloc>().add(
+                ReportTodayList(formattedFromDate, formattedToDate),
+              );
+        } else if (_fromDate != null && _toDate == null) {
+          String formattedFromDate =
+              DateFormat('yyyy-MM-dd').format(_fromDate!);
+          String formattedToDate = DateFormat('yyyy-MM-dd').format(now);
+
           context.read<ReportTodayBloc>().add(
                 ReportTodayList(formattedFromDate, formattedToDate),
               );
@@ -113,7 +125,7 @@ class ReportViewViewState extends State<ReportViewView> {
   void refreshReport() {
     if (!mounted || !context.mounted) return;
     context.read<ReportTodayBloc>().add(
-          ReportTodayList(yesterdayDate, todayDate),
+          ReportTodayList(todayApiDate, todayApiDate),
         );
     setState(() {
       reportLoad = true;
@@ -128,19 +140,19 @@ class ReportViewViewState extends State<ReportViewView> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           reportLoad = true;
-          fromDateController.text = yesterdayDate.toString();
-          toDateController.text = todayDate.toString();
+          fromDateController.text = todayDisplayDate;
+          toDateController.text = todayDisplayDate;
         });
         widget.reportKey?.currentState?.refreshReport();
       });
     } else {
       setState(() {
         reportLoad = true;
-        fromDateController.text = yesterdayDate.toString();
-        toDateController.text = todayDate.toString();
+        fromDateController.text = todayDisplayDate;
+        toDateController.text = todayDisplayDate;
       });
       context.read<ReportTodayBloc>().add(
-            ReportTodayList(yesterdayDate, todayDate),
+            ReportTodayList(todayApiDate, todayApiDate),
           );
     }
   }
@@ -200,7 +212,7 @@ class ReportViewViewState extends State<ReportViewView> {
                                           toDateController.text.isEmpty) {
                                         context.read<ReportTodayBloc>().add(
                                               ReportTodayList(
-                                                  yesterdayDate, todayDate),
+                                                  todayApiDate, todayApiDate),
                                             );
                                       }
                                     });
@@ -243,7 +255,7 @@ class ReportViewViewState extends State<ReportViewView> {
                                           toDateController.text.isEmpty) {
                                         context.read<ReportTodayBloc>().add(
                                               ReportTodayList(
-                                                  yesterdayDate, todayDate),
+                                                  todayApiDate, todayApiDate),
                                             );
                                       }
                                     });
@@ -255,6 +267,20 @@ class ReportViewViewState extends State<ReportViewView> {
                       ),
                     ),
                   ),
+                ],
+              ),
+              SizedBox(height: 24),
+              Row(
+                children: [
+                  Checkbox(
+                    value: includeProduct,
+                    onChanged: (value) {
+                      setState(() {
+                        includeProduct = value ?? true;
+                      });
+                    },
+                  ),
+                  const Text("Include product"),
                 ],
               ),
               SizedBox(height: 24),
@@ -281,87 +307,86 @@ class ReportViewViewState extends State<ReportViewView> {
                           ))
                       : Column(
                           children: [
-                            Table(
-                              border: TableBorder.all(),
-                              columnWidths: const {
-                                0: FixedColumnWidth(50), // S.No
-                                1: FlexColumnWidth(), // Product Name
-                                2: FixedColumnWidth(75), // Quantity
-                                3: FixedColumnWidth(80), // Amount
-                              },
-                              children: [
-                                const TableRow(
-                                  decoration:
-                                      BoxDecoration(color: appPrimaryColor),
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: Text("S.No",
-                                          style: TextStyle(
-                                              color: whiteColor,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: Text("Product Name",
-                                          style: TextStyle(
-                                              color: whiteColor,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: Text("Quantity",
-                                          style: TextStyle(
-                                              color: whiteColor,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: Text("Amount",
-                                          style: TextStyle(
-                                              color: whiteColor,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                  ],
-                                ),
-                                // Data Rows
-                                ...List.generate(getReportModel.data!.length,
-                                    (index) {
-                                  final item = getReportModel.data![index];
-                                  return TableRow(
+                            if (includeProduct) ...[
+                              Table(
+                                border: TableBorder.all(),
+                                columnWidths: const {
+                                  0: FixedColumnWidth(50),
+                                  1: FlexColumnWidth(),
+                                  2: FixedColumnWidth(75),
+                                  3: FixedColumnWidth(80),
+                                },
+                                children: [
+                                  const TableRow(
+                                    decoration:
+                                        BoxDecoration(color: appPrimaryColor),
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                            child:
-                                                Text("${index + 1}")), // S.No
+                                        padding: EdgeInsets.all(8),
+                                        child: Text("S.No",
+                                            style: TextStyle(
+                                                color: whiteColor,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Text(item.productName ?? ""),
+                                        padding: EdgeInsets.all(8),
+                                        child: Text("Product Name",
+                                            style: TextStyle(
+                                                color: whiteColor,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                            child:
-                                                Text("${item.totalQty ?? ""}")),
+                                        padding: EdgeInsets.all(8),
+                                        child: Text("Quantity",
+                                            style: TextStyle(
+                                                color: whiteColor,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                            child: Text(item.totalAmount
-                                                    ?.toStringAsFixed(2) ??
-                                                "")),
+                                        padding: EdgeInsets.all(8),
+                                        child: Text("Amount",
+                                            style: TextStyle(
+                                                color: whiteColor,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                     ],
-                                  );
-                                }),
-                              ],
-                            ),
+                                  ),
+                                  ...List.generate(getReportModel.data!.length,
+                                      (index) {
+                                    final item = getReportModel.data![index];
+                                    return TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                              child: Text("${index + 1}")),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Text(item.productName ?? ""),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                              child: Text(
+                                                  "${item.totalQty ?? ""}")),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                              child: Text(item.totalAmount
+                                                      ?.toStringAsFixed(2) ??
+                                                  "")),
+                                        ),
+                                      ],
+                                    );
+                                  }),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                            ],
 
-                            const SizedBox(height: 16),
-
-                            // Total Section
+                            // ✅ Always show totals
                             Align(
                               alignment: Alignment.centerRight,
                               child: Column(
@@ -370,16 +395,14 @@ class ReportViewViewState extends State<ReportViewView> {
                                   Text(
                                     "Total Quantity: ${getReportModel.finalQty}",
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
                                   ),
                                   Text(
                                     "Total Amount: ₹${getReportModel.finalAmount?.toStringAsFixed(2) ?? '0.00'}",
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
                                   ),
                                 ],
                               ),
@@ -392,7 +415,8 @@ class ReportViewViewState extends State<ReportViewView> {
                                     context: context,
                                     builder: (context) =>
                                         ThermalReportReceiptDialog(
-                                            getReportModel),
+                                            getReportModel,
+                                            showItems: includeProduct),
                                   );
                                 },
                                 icon: const Icon(Icons.print),

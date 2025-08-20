@@ -14,8 +14,9 @@ import 'package:simple/UI/IminHelper/Report_helper.dart';
 
 class ThermalReportReceiptDialog extends StatefulWidget {
   final GetReportModel getReportModel;
-
-  const ThermalReportReceiptDialog(this.getReportModel, {super.key});
+  final bool showItems;
+  const ThermalReportReceiptDialog(this.getReportModel,
+      {super.key, required this.showItems});
 
   @override
   State<ThermalReportReceiptDialog> createState() =>
@@ -42,9 +43,28 @@ class _ThermalReportReceiptDialogState
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    String businessName = widget.getReportModel.businessName ?? 'Business Name';
+    final report = widget.getReportModel.data!;
+
+    List<Map<String, dynamic>> items = report
+        .map((e) => {
+              'name': e.productName,
+              'qty': e.totalQty,
+              'price': (e.unitPrice ?? 0).toDouble(),
+              'total': (e.totalAmount ?? 0).toDouble(),
+            })
+        .toList();
+
+    String businessName = widget.getReportModel.businessName ?? '';
     String userName = widget.getReportModel.userName ?? '';
-    String address = widget.getReportModel.address ?? 'Business Address';
+    String address = widget.getReportModel.address ?? '';
+    String location = widget.getReportModel.location ?? '';
+    String fromDate = DateFormat('dd/MM/yyyy').format(
+      DateTime.parse(widget.getReportModel.fromDate.toString()),
+    );
+
+    String toDate = DateFormat('dd/MM/yyyy').format(
+      DateTime.parse(widget.getReportModel.toDate.toString()),
+    );
     String phone = widget.getReportModel.phone ?? '';
     double totalAmount = (widget.getReportModel.finalAmount ?? 0.0).toDouble();
     int totalQty = (widget.getReportModel.finalQty ?? 0.0).toInt();
@@ -100,15 +120,19 @@ class _ThermalReportReceiptDialogState
                     RepaintBoundary(
                       key: reportKey,
                       child: getReportReceiptWidget(
-                        businessName: businessName,
-                        tamilTagline: "",
-                        address: address,
-                        phone: phone,
-                        reportDate: date,
-                        takenBy: userName,
-                        totalQuantity: totalQty,
-                        totalAmount: totalAmount,
-                      ),
+                          businessName: businessName,
+                          tamilTagline: "",
+                          address: address,
+                          phone: phone,
+                          items: items,
+                          reportDate: date,
+                          takenBy: userName,
+                          totalQuantity: totalQty,
+                          totalAmount: totalAmount,
+                          fromDate: fromDate,
+                          toDate: toDate,
+                          location: location,
+                          showItems: widget.showItems),
                     ),
 
                     const SizedBox(height: 20),

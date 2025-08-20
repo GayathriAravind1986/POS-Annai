@@ -143,7 +143,6 @@ class ApiProvider {
       );
       if (response.statusCode == 200 && response.data != null) {
         if (response.data['success'] == true) {
-          debugPrint("✅ API Success Response: ${response.data}");
           GetProductByCatIdModel getProductByCatIdResponse =
               GetProductByCatIdModel.fromJson(response.data);
           return getProductByCatIdResponse;
@@ -388,10 +387,8 @@ class ApiProvider {
       final String orderPayloadJson) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
-    debugPrint("payload:$orderPayloadJson");
     try {
       var data = orderPayloadJson;
-      debugPrint("data:$data");
       var dio = Dio();
       var response = await dio.request(
         '${Constants.baseUrl}api/generate-order/order',
@@ -517,10 +514,8 @@ class ApiProvider {
       final String orderPayloadJson, String? orderId) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
-    debugPrint("payload:$orderPayloadJson");
     try {
       var data = orderPayloadJson;
-      debugPrint("data:$data");
       var dio = Dio();
       var response = await dio.request(
         '${Constants.baseUrl}api/generate-order/order/$orderId',

@@ -8,11 +8,16 @@ Widget getReportReceiptWidget({
   required String businessName,
   required String tamilTagline,
   required String address,
+  required String location,
+  required String fromDate,
+  required String toDate,
   required String phone,
+  required List<Map<String, dynamic>> items,
   required String reportDate,
   required String takenBy,
   required int totalQuantity,
   required double totalAmount,
+  required bool showItems,
 }) {
   return Container(
     width: 384,
@@ -27,7 +32,7 @@ Widget getReportReceiptWidget({
             child: Column(
               children: [
                 // Text(
-                //   tamilTagline,
+                //   "$showItems",
                 //   style: const TextStyle(
                 //     fontSize: 20,
                 //     fontWeight: FontWeight.w600,
@@ -82,12 +87,63 @@ Widget getReportReceiptWidget({
           const SizedBox(height: 8),
 
           // Report Details
+          _buildThermalLabelRow("From Date", fromDate),
+          _buildThermalLabelRow("To Date", toDate),
           _buildThermalLabelRow("Report Date", reportDate),
           _buildThermalLabelRow("Taken By", takenBy),
+          _buildThermalLabelRow("Location", location),
           const SizedBox(height: 8),
-
           Divider(thickness: 4, color: blackColor),
-
+          if (showItems)
+            Row(
+              children: const [
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    "S.No",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: Text(
+                    "Product",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "Qty",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    "Amount",
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          if (showItems) ...[
+            ...items.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              return _buildThermalItemRow(
+                index + 1,
+                item['name'],
+                item['qty'],
+                item['total'],
+              );
+            }),
+          ],
+          if (showItems) Divider(thickness: 4, color: blackColor),
           _buildThermalTotalRow("Total Quantity", totalQuantity.toDouble()),
           _buildThermalTotalRow(
             "Total Amount",
@@ -131,6 +187,47 @@ Widget getReportReceiptWidget({
           const SizedBox(height: 80), // Footer padding
         ],
       ),
+    ),
+  );
+}
+
+Widget _buildThermalItemRow(int sno, String name, int qty, double amount) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 1.0),
+    child: Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Text(
+            '$sno',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16, color: blackColor),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Text(
+            name,
+            style: const TextStyle(fontSize: 16, color: blackColor),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Text(
+            '$qty',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16, color: blackColor),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Text(
+            '₹${amount.toStringAsFixed(2)}',
+            textAlign: TextAlign.end,
+            style: const TextStyle(fontSize: 16, color: blackColor),
+          ),
+        ),
+      ],
     ),
   );
 }
