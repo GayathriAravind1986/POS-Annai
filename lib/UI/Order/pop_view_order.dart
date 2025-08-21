@@ -50,8 +50,10 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
             })
         .toList();
 
-    String businessName = invoice.businessName ?? 'Business Name';
-    String address = invoice.address ?? 'Business Address';
+    String businessName = invoice.businessName ?? '';
+    String address = invoice.address ?? '';
+    String gst = invoice.gstNumber ?? '';
+    debugPrint("gst:$gst");
     double taxAmount = (order.tax ?? 0.0).toDouble();
     String orderNumber = order.orderNumber ?? 'N/A';
     String paymentMethod = invoice.paidBy ?? '';
@@ -115,6 +117,7 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                       child: getThermalReceiptWidget(
                         businessName: businessName,
                         address: address,
+                        gst: gst,
                         items: items,
                         tax: taxAmount,
                         paidBy: paymentMethod,

@@ -31,7 +31,7 @@ class CategoryCard extends StatelessWidget {
           color: isSelected ? whiteColor : greyColor.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? blueGreyColor.shade300 : greyColor.shade300,
+            color: isSelected ? appPrimaryColor.shade300 : greyColor.shade300,
             width: 1.5,
           ),
         ),

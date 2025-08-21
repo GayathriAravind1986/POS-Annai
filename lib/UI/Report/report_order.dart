@@ -274,6 +274,7 @@ class ReportViewViewState extends State<ReportViewView> {
                 children: [
                   Checkbox(
                     value: includeProduct,
+                    activeColor: appPrimaryColor,
                     onChanged: (value) {
                       setState(() {
                         includeProduct = value ?? true;

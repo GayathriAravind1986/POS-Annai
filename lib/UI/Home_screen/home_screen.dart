@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter/foundation.dart' hide Category;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,8 @@ import 'package:simple/UI/Home_screen/Widget/another_imin_printer/mock_imin_prin
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/real_device_printer.dart';
 import 'package:simple/UI/Home_screen/Widget/category_card.dart';
 import 'package:simple/UI/IminHelper/printer_helper.dart';
+import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
+import 'package:image/image.dart' as img;
 
 class FoodOrderingScreen extends StatelessWidget {
   final GlobalKey<FoodOrderingScreenViewState>? foodKey;
@@ -72,6 +75,8 @@ class FoodOrderingScreenView extends StatefulWidget {
   FoodOrderingScreenViewState createState() => FoodOrderingScreenViewState();
 }
 
+enum OrderType { dineIn, takeAway, ac, hd }
+
 class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
   GetCategoryModel getCategoryModel = GetCategoryModel();
   GetProductByCatIdModel getProductByCatIdModel = GetProductByCatIdModel();
@@ -89,8 +94,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
   String selectedCategory = "All";
   String? selectedCatId = "";
-  bool selectDineIn = true;
+  //bool selectDineIn = true;
 
+  OrderType? selectedOrderType = OrderType.dineIn;
   bool isSplitPayment = false;
   bool splitChange = false;
   bool isCompleteOrder = false;
@@ -195,10 +201,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
               })
           .toList();
 
-      String businessName =
-          postGenerateOrderModel.invoice!.businessName ?? 'Business Name';
-      String address =
-          postGenerateOrderModel.invoice!.address ?? 'Business Address';
+      String businessName = postGenerateOrderModel.invoice!.businessName ?? '';
+      String address = postGenerateOrderModel.invoice!.address ?? '';
+      String gst = postGenerateOrderModel.invoice!.gstNumber ?? '';
       double taxPercent = (postGenerateOrderModel.order!.tax ?? 0.0).toDouble();
       String orderNumber = postGenerateOrderModel.order!.orderNumber ?? 'N/A';
       String paymentMethod = postGenerateOrderModel.invoice!.paidBy ?? '';
@@ -233,6 +238,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                     child: getThermalReceiptWidget(
                       businessName: businessName,
                       address: address,
+                      gst: gst,
                       items: items,
                       tax: taxPercent,
                       paidBy: paymentMethod,
@@ -267,6 +273,41 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                               await printerService.fullCut();
                               Navigator.pop(context);
                             }
+                            // await Future.delayed(
+                            //     const Duration(milliseconds: 300));
+                            // await WidgetsBinding.instance.endOfFrame;
+                            //
+                            // Uint8List? imageBytes =
+                            //     await captureMonochromeReceipt(receiptKey);
+                            //
+                            // if (imageBytes != null) {
+                            //   await printerService.init();
+                            //   await printerService.printBitmap(imageBytes);
+                            //   await printerService.fullCut();
+                            //
+                            //   final printer =
+                            //       PrinterNetworkManager("192.168.1.96");
+                            //   await printer.connect();
+                            //
+                            //   final profile = await CapabilityProfile.load();
+                            //   final generator =
+                            //       Generator(PaperSize.mm80, profile);
+                            //
+                            //   // Convert bytes -> image for esc_pos
+                            //   final decodedImage = img.decodeImage(imageBytes);
+                            //   if (decodedImage != null) {
+                            //     List<int> bytes = [];
+                            //     bytes += generator.imageRaster(decodedImage);
+                            //     bytes += generator.feed(2);
+                            //     bytes += generator.cut();
+                            //
+                            //     await printer.printTicket(bytes);
+                            //   }
+                            //
+                            //   await printer.disconnect();
+                            // }
+                            //
+                            // Navigator.pop(context);
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Print failed: $e")),
@@ -337,9 +378,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
           .toList();
 
       String businessName =
-          updateGenerateOrderModel.invoice!.businessName ?? 'Business Name';
-      String address =
-          updateGenerateOrderModel.invoice!.address ?? 'Business Address';
+          updateGenerateOrderModel.invoice!.businessName ?? '';
+      String address = updateGenerateOrderModel.invoice!.address ?? '';
+      String gst = updateGenerateOrderModel.invoice!.gstNumber ?? '';
       double taxPercent =
           (updateGenerateOrderModel.order!.tax ?? 0.0).toDouble();
       String orderNumber = updateGenerateOrderModel.order!.orderNumber ?? 'N/A';
@@ -376,6 +417,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                     child: getThermalReceiptWidget(
                         businessName: businessName,
                         address: address,
+                        gst: gst,
                         items: items,
                         tax: taxPercent,
                         paidBy: paymentMethod,
@@ -503,7 +545,22 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
     final data = order.data!;
 
     setState(() {
-      selectDineIn = data.orderType == 'DINE-IN';
+      switch (data.orderType) {
+        case 'DINE-IN':
+          selectedOrderType = OrderType.dineIn;
+          break;
+        case 'TAKEAWAY':
+          selectedOrderType = OrderType.takeAway;
+          break;
+        case 'AC':
+          selectedOrderType = OrderType.ac;
+          break;
+        case 'HD':
+          selectedOrderType = OrderType.hd;
+          break;
+        default:
+          selectedOrderType = OrderType.dineIn;
+      }
       tableId = data.tableNo;
       selectedValue = data.tableName;
       isCartLoaded = true;
@@ -543,7 +600,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
       billingItems.clear();
       tableId = null;
       selectedValue = null;
-      selectDineIn = true;
+      selectedOrderType = OrderType.dineIn;
       isSplitPayment = false;
       amountController.clear();
       selectedFullPaymentMethod = "";
@@ -1018,7 +1075,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                               setState(() {
                                                                                                 isSplitPayment = false;
                                                                                                 if (widget.isEditingOrder != true) {
-                                                                                                  selectDineIn = true;
+                                                                                                  selectedOrderType = OrderType.dineIn;
                                                                                                 }
                                                                                                 final index = billingItems.indexWhere((item) => item['_id'] == p.id);
                                                                                                 if (index != -1) {
@@ -1133,8 +1190,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                     if (widget
                                                                             .isEditingOrder !=
                                                                         true) {
-                                                                      selectDineIn =
-                                                                          true;
+                                                                      selectedOrderType =
+                                                                          OrderType
+                                                                              .dineIn;
                                                                     }
                                                                     final index =
                                                                         billingItems.indexWhere((item) =>
@@ -1388,7 +1446,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                     setState(() {
                                                                                       isSplitPayment = false;
                                                                                       if (widget.isEditingOrder != true) {
-                                                                                        selectDineIn = true;
+                                                                                        selectedOrderType = OrderType.dineIn;
                                                                                       }
                                                                                       final index = billingItems.indexWhere((item) => item['_id'] == p.id);
                                                                                       if (index != -1 && billingItems[index]['qty'] > 1) {
@@ -1444,7 +1502,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                             setState(() {
                                                                                               isSplitPayment = false;
                                                                                               if (widget.isEditingOrder != true) {
-                                                                                                selectDineIn = true;
+                                                                                                selectedOrderType = OrderType.dineIn;
                                                                                               }
                                                                                               final index = billingItems.indexWhere((item) => item['_id'] == p.id);
                                                                                               if (index != -1) {
@@ -1526,7 +1584,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                     setState(() {
                                                                                       isSplitPayment = false;
                                                                                       if (widget.isEditingOrder != true) {
-                                                                                        selectDineIn = true;
+                                                                                        selectedOrderType = OrderType.dineIn;
                                                                                       }
                                                                                       final index = billingItems.indexWhere((item) => item['_id'] == p.id);
                                                                                       if (index != -1 && billingItems[index]['qty'] > 1) {
@@ -1582,7 +1640,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                             setState(() {
                                                                                               isSplitPayment = false;
                                                                                               if (widget.isEditingOrder != true) {
-                                                                                                selectDineIn = true;
+                                                                                                selectedOrderType = OrderType.dineIn;
                                                                                               }
                                                                                               final index = billingItems.indexWhere((item) => item['_id'] == p.id);
                                                                                               if (index != -1) {
@@ -1784,7 +1842,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                               setState(() {
                                                                                                 isSplitPayment = false;
                                                                                                 if (widget.isEditingOrder != true) {
-                                                                                                  selectDineIn = true;
+                                                                                                  selectedOrderType = OrderType.dineIn;
                                                                                                 }
                                                                                                 final index = billingItems.indexWhere((item) => item['_id'] == p.id);
                                                                                                 if (index != -1) {
@@ -1848,8 +1906,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                     if (widget
                                                                             .isEditingOrder !=
                                                                         true) {
-                                                                      selectDineIn =
-                                                                          true;
+                                                                      selectedOrderType =
+                                                                          OrderType
+                                                                              .dineIn;
                                                                     }
                                                                     final index =
                                                                         billingItems.indexWhere((item) =>
@@ -2036,7 +2095,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                   setState(() {
                                                                                     isSplitPayment = false;
                                                                                     if (widget.isEditingOrder != true) {
-                                                                                      selectDineIn = true;
+                                                                                      selectedOrderType = OrderType.dineIn;
                                                                                     }
                                                                                     final index = billingItems.indexWhere((item) => item['_id'] == p.id);
                                                                                     if (index != -1 && billingItems[index]['qty'] > 1) {
@@ -2072,7 +2131,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                   setState(() {
                                                                                     isSplitPayment = false;
                                                                                     if (widget.isEditingOrder != true) {
-                                                                                      selectDineIn = true;
+                                                                                      selectedOrderType = OrderType.dineIn;
                                                                                     }
                                                                                     final index = billingItems.indexWhere((item) => item['_id'] == p.id);
                                                                                     if (index != -1) {
@@ -2525,8 +2584,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                   onTap: () {
                                                                     setState(
                                                                         () {
-                                                                      selectDineIn =
-                                                                          true;
+                                                                      selectedOrderType =
+                                                                          OrderType
+                                                                              .dineIn;
                                                                       if (widget
                                                                               .isEditingOrder !=
                                                                           true) {
@@ -2541,24 +2601,32 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                   },
                                                                   child:
                                                                       Container(
-                                                                    padding: EdgeInsets
+                                                                    padding: const EdgeInsets
                                                                         .symmetric(
-                                                                            vertical:
-                                                                                8),
-                                                                    decoration: BoxDecoration(
-                                                                        color: selectDineIn ==
-                                                                                true
-                                                                            ? appPrimaryColor
-                                                                            : whiteColor,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(30)),
+                                                                        vertical:
+                                                                            8),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: selectedOrderType ==
+                                                                              OrderType.dineIn
+                                                                          ? appPrimaryColor
+                                                                          : whiteColor,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              30),
+                                                                    ),
                                                                     child:
                                                                         Center(
-                                                                      child: Text(
-                                                                          "Dine In",
-                                                                          style: MyTextStyle.f14(selectDineIn == true
+                                                                      child:
+                                                                          Text(
+                                                                        "Dine In",
+                                                                        style: MyTextStyle
+                                                                            .f14(
+                                                                          selectedOrderType == OrderType.dineIn
                                                                               ? whiteColor
-                                                                              : blackColor)),
+                                                                              : blackColor,
+                                                                        ),
+                                                                      ),
                                                                     ),
                                                                   ),
                                                                 ),
@@ -2568,8 +2636,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                   onTap: () {
                                                                     setState(
                                                                         () {
-                                                                      selectDineIn =
-                                                                          false;
+                                                                      selectedOrderType =
+                                                                          OrderType
+                                                                              .takeAway;
                                                                       if (widget
                                                                               .isEditingOrder !=
                                                                           true) {
@@ -2584,27 +2653,121 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                   },
                                                                   child:
                                                                       Container(
-                                                                    padding: EdgeInsets
+                                                                    padding: const EdgeInsets
                                                                         .symmetric(
-                                                                            vertical:
-                                                                                8),
-                                                                    decoration: BoxDecoration(
-                                                                        color: selectDineIn ==
-                                                                                false
-                                                                            ? appPrimaryColor
-                                                                            : whiteColor,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(30)),
-                                                                    child: Center(
-                                                                        child: Text(
-                                                                            "Take Away",
-                                                                            style: MyTextStyle.f14(selectDineIn == false
-                                                                                ? whiteColor
-                                                                                : blackColor))),
+                                                                        vertical:
+                                                                            8),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: selectedOrderType ==
+                                                                              OrderType.takeAway
+                                                                          ? appPrimaryColor
+                                                                          : whiteColor,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              30),
+                                                                    ),
+                                                                    child:
+                                                                        Center(
+                                                                      child:
+                                                                          Text(
+                                                                        "Take Away",
+                                                                        style: MyTextStyle
+                                                                            .f14(
+                                                                          selectedOrderType == OrderType.takeAway
+                                                                              ? whiteColor
+                                                                              : blackColor,
+                                                                        ),
+                                                                      ),
+                                                                    ),
                                                                   ),
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              Expanded(
+                                                                child: InkWell(
+                                                                  onTap: () {
+                                                                    setState(
+                                                                        () {
+                                                                      selectedOrderType =
+                                                                          OrderType
+                                                                              .ac;
+                                                                    });
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                        vertical:
+                                                                            8),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: selectedOrderType ==
+                                                                              OrderType.ac
+                                                                          ? appPrimaryColor
+                                                                          : whiteColor,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              30),
+                                                                    ),
+                                                                    child:
+                                                                        Center(
+                                                                      child:
+                                                                          Text(
+                                                                        "AC",
+                                                                        style: MyTextStyle
+                                                                            .f14(
+                                                                          selectedOrderType == OrderType.ac
+                                                                              ? whiteColor
+                                                                              : blackColor,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Expanded(
+                                                                child: InkWell(
+                                                                  onTap: () {
+                                                                    setState(
+                                                                        () {
+                                                                      selectedOrderType =
+                                                                          OrderType
+                                                                              .hd;
+                                                                    });
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                        vertical:
+                                                                            8),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: selectedOrderType ==
+                                                                              OrderType.hd
+                                                                          ? appPrimaryColor
+                                                                          : whiteColor,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              30),
+                                                                    ),
+                                                                    child:
+                                                                        Center(
+                                                                      child:
+                                                                          Text(
+                                                                        "HD",
+                                                                        style: MyTextStyle
+                                                                            .f14(
+                                                                          selectedOrderType == OrderType.hd
+                                                                              ? whiteColor
+                                                                              : blackColor,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
                                                                   width: 16),
                                                               Text(
                                                                 "Bills",
@@ -2623,8 +2786,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                         null;
                                                                     tableId =
                                                                         null;
-                                                                    selectDineIn =
-                                                                        true;
+                                                                    selectedOrderType =
+                                                                        OrderType
+                                                                            .dineIn;
                                                                     isCompleteOrder =
                                                                         false;
                                                                     isSplitPayment =
@@ -2637,9 +2801,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                         false;
                                                                     balance = 0;
                                                                     if (billingItems
-                                                                            .isEmpty ||
-                                                                        billingItems ==
-                                                                            []) {
+                                                                        .isEmpty) {
                                                                       isDiscountApplied =
                                                                           false;
                                                                     }
@@ -2647,10 +2809,11 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                   context
                                                                       .read<
                                                                           FoodCategoryBloc>()
-                                                                      .add(AddToBilling(
-                                                                          List.from(
-                                                                              billingItems),
-                                                                          isDiscountApplied));
+                                                                      .add(
+                                                                        AddToBilling(
+                                                                            List.from(billingItems),
+                                                                            isDiscountApplied),
+                                                                      );
                                                                 },
                                                                 icon: const Icon(
                                                                     Icons
@@ -2659,8 +2822,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                             ],
                                                           ),
                                                           SizedBox(height: 10),
-                                                          if (selectDineIn ==
-                                                              true)
+                                                          if (selectedOrderType ==
+                                                              OrderType.dineIn)
                                                             Text(
                                                               'Choose Table',
                                                               style: MyTextStyle
@@ -2671,8 +2834,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                         .bold,
                                                               ),
                                                             ),
-                                                          if (selectDineIn ==
-                                                              true)
+                                                          if (selectedOrderType ==
+                                                              OrderType.dineIn)
                                                             Container(
                                                               margin:
                                                                   const EdgeInsets
@@ -2904,7 +3067,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                       setState(() {
                                                                                         isSplitPayment = false;
                                                                                         if (widget.isEditingOrder != true) {
-                                                                                          selectDineIn = true;
+                                                                                          selectedOrderType = OrderType.dineIn;
                                                                                         }
                                                                                         final index = billingItems.indexWhere((item) => item['_id'] == e.id);
                                                                                         if (index != -1 && billingItems[index]['qty'] > 1) {
@@ -3648,7 +3811,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                           ? SpinKitCircle(color: appPrimaryColor, size: 30)
                                                                           : ElevatedButton(
                                                                               onPressed: () {
-                                                                                if (selectedValue == null && selectDineIn == true) {
+                                                                                if (selectedValue == null && selectedOrderType == OrderType.dineIn) {
                                                                                   setState(() {
                                                                                     isCompleteOrder = false;
                                                                                   });
@@ -3667,9 +3830,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                   ];
                                                                                   final orderPayload = buildOrderPayload(
                                                                                     postAddToBillingModel: postAddToBillingModel,
-                                                                                    tableId: selectDineIn == true ? tableId : null,
+                                                                                    tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                     orderStatus: 'WAITLIST',
-                                                                                    orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                    orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                     discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                     isDiscountApplied: isDiscountApplied,
                                                                                     tipAmount: tipController.text,
@@ -3679,7 +3842,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                     orderLoad = true;
                                                                                   });
                                                                                   if (widget.isEditingOrder == true && (postAddToBillingModel.total != widget.existingOrder?.data!.total && widget.existingOrder?.data!.orderStatus == "WAITLIST")) {
-                                                                                    if ((selectedValue == null || selectedValue == 'N/A') && selectDineIn == true) {
+                                                                                    if ((selectedValue == null || selectedValue == 'N/A') && selectedOrderType == OrderType.dineIn) {
                                                                                       showToast("Table number is required for DINE-IN orders", context, color: false);
                                                                                       setState(() {
                                                                                         orderLoad = false;
@@ -3721,7 +3884,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                           : ElevatedButton(
                                                                               onPressed: () {
                                                                                 /* Full payment */
-                                                                                if (selectedValue == null && selectDineIn == true) {
+                                                                                if (selectedValue == null && selectedOrderType == OrderType.dineIn) {
                                                                                   showToast("Table number is required for DINE-IN orders", context, color: false);
                                                                                 } else {
                                                                                   if ((widget.isEditingOrder == false || widget.isEditingOrder == null) || (widget.isEditingOrder == true && widget.existingOrder?.data!.orderStatus == "WAITLIST")) {
@@ -3744,9 +3907,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                                       final orderPayload = buildOrderPayload(
                                                                                         postAddToBillingModel: postAddToBillingModel,
-                                                                                        tableId: selectDineIn == true ? tableId : null,
+                                                                                        tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                         orderStatus: 'COMPLETED',
-                                                                                        orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                        orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                         discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                         isDiscountApplied: isDiscountApplied,
                                                                                         tipAmount: tipController.text,
@@ -3771,9 +3934,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                                       final orderPayload = buildOrderPayload(
                                                                                         postAddToBillingModel: postAddToBillingModel,
-                                                                                        tableId: selectDineIn == true ? tableId : null,
+                                                                                        tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                         orderStatus: 'COMPLETED',
-                                                                                        orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                        orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                         discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                         isDiscountApplied: isDiscountApplied,
                                                                                         tipAmount: tipController.text,
@@ -3805,9 +3968,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                                         final orderPayload = buildOrderPayload(
                                                                                           postAddToBillingModel: postAddToBillingModel,
-                                                                                          tableId: selectDineIn == true ? tableId : null,
+                                                                                          tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                           orderStatus: 'COMPLETED',
-                                                                                          orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                          orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                           discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                           isDiscountApplied: isDiscountApplied,
                                                                                           tipAmount: tipController.text,
@@ -3873,8 +4036,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                         if (selectedValue ==
                                                                                 null &&
-                                                                            selectDineIn ==
-                                                                                true) {
+                                                                            selectedOrderType ==
+                                                                                OrderType.dineIn) {
                                                                           showToast(
                                                                             "Table number is required for DINE-IN orders",
                                                                             context,
@@ -3913,12 +4076,12 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                               buildOrderPayload(
                                                                             postAddToBillingModel:
                                                                                 postAddToBillingModel,
-                                                                            tableId: selectDineIn == true
+                                                                            tableId: selectedOrderType == OrderType.dineIn
                                                                                 ? tableId
                                                                                 : null,
                                                                             orderStatus:
                                                                                 'COMPLETED',
-                                                                            orderType: selectDineIn == true
+                                                                            orderType: selectedOrderType == OrderType.dineIn
                                                                                 ? 'DINE-IN'
                                                                                 : 'TAKE-AWAY',
                                                                             discountAmount:
@@ -3964,9 +4127,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                             final orderPayload =
                                                                                 buildOrderPayload(
                                                                               postAddToBillingModel: postAddToBillingModel,
-                                                                              tableId: selectDineIn == true ? tableId : null,
+                                                                              tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                               orderStatus: 'COMPLETED',
-                                                                              orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                              orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                               discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                               isDiscountApplied: isDiscountApplied,
                                                                               tipAmount: tipController.text,
@@ -4007,9 +4170,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                             final orderPayload =
                                                                                 buildOrderPayload(
                                                                               postAddToBillingModel: postAddToBillingModel,
-                                                                              tableId: selectDineIn == true ? tableId : null,
+                                                                              tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                               orderStatus: 'COMPLETED',
-                                                                              orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                              orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                               discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                               isDiscountApplied: isDiscountApplied,
                                                                               tipAmount: tipController.text,
@@ -4067,8 +4230,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                     onTap: () {
                                                                       setState(
                                                                           () {
-                                                                        selectDineIn =
-                                                                            true;
+                                                                        selectedOrderType =
+                                                                            OrderType.dineIn;
                                                                         if (widget.isEditingOrder !=
                                                                             true) {
                                                                           selectedValue =
@@ -4086,7 +4249,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                           vertical:
                                                                               8),
                                                                       decoration: BoxDecoration(
-                                                                          color: selectDineIn == true
+                                                                          color: selectedOrderType == OrderType.dineIn
                                                                               ? appPrimaryColor
                                                                               : whiteColor,
                                                                           borderRadius:
@@ -4095,7 +4258,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                           Center(
                                                                         child: Text(
                                                                             "Dine In",
-                                                                            style: MyTextStyle.f14(selectDineIn == true
+                                                                            style: MyTextStyle.f14(selectedOrderType == OrderType.dineIn
                                                                                 ? whiteColor
                                                                                 : blackColor)),
                                                                       ),
@@ -4108,8 +4271,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                     onTap: () {
                                                                       setState(
                                                                           () {
-                                                                        selectDineIn =
-                                                                            false;
+                                                                        selectedOrderType =
+                                                                            OrderType.takeAway;
                                                                         if (widget.isEditingOrder !=
                                                                             true) {
                                                                           selectedValue =
@@ -4127,7 +4290,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                           vertical:
                                                                               8),
                                                                       decoration: BoxDecoration(
-                                                                          color: selectDineIn == false
+                                                                          color: selectedOrderType == OrderType.takeAway
                                                                               ? appPrimaryColor
                                                                               : whiteColor,
                                                                           borderRadius:
@@ -4135,7 +4298,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                       child: Center(
                                                                           child: Text(
                                                                               "Take Away",
-                                                                              style: MyTextStyle.f14(selectDineIn == false ? whiteColor : blackColor))),
+                                                                              style: MyTextStyle.f14(selectedOrderType == OrderType.takeAway ? whiteColor : blackColor))),
                                                                     ),
                                                                   ),
                                                                 ),
@@ -4159,8 +4322,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                           null;
                                                                       tableId =
                                                                           null;
-                                                                      selectDineIn =
-                                                                          true;
+                                                                      selectedOrderType =
+                                                                          OrderType
+                                                                              .dineIn;
                                                                       isCompleteOrder =
                                                                           false;
                                                                       isSplitPayment =
@@ -4196,8 +4360,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                             ),
                                                             SizedBox(
                                                                 height: 10),
-                                                            if (selectDineIn ==
-                                                                true)
+                                                            if (selectedOrderType ==
+                                                                OrderType
+                                                                    .dineIn)
                                                               Text(
                                                                 'Choose Table',
                                                                 style:
@@ -4209,8 +4374,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                           .bold,
                                                                 ),
                                                               ),
-                                                            if (selectDineIn ==
-                                                                true)
+                                                            if (selectedOrderType ==
+                                                                OrderType
+                                                                    .dineIn)
                                                               Container(
                                                                 margin:
                                                                     const EdgeInsets
@@ -5077,7 +5243,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                             ? SpinKitCircle(color: appPrimaryColor, size: 30)
                                                                             : ElevatedButton(
                                                                                 onPressed: () {
-                                                                                  if (selectedValue == null && selectDineIn == true) {
+                                                                                  if (selectedValue == null && selectedOrderType == OrderType.dineIn) {
                                                                                     setState(() {
                                                                                       isCompleteOrder = false;
                                                                                     });
@@ -5096,9 +5262,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                     ];
                                                                                     final orderPayload = buildOrderPayload(
                                                                                       postAddToBillingModel: postAddToBillingModel,
-                                                                                      tableId: selectDineIn == true ? tableId : null,
+                                                                                      tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                       orderStatus: 'WAITLIST',
-                                                                                      orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                      orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                       discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                       isDiscountApplied: isDiscountApplied,
                                                                                       tipAmount: tipController.text,
@@ -5109,7 +5275,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                     });
                                                                                     debugPrint("payloadsave:${jsonEncode(orderPayload)}");
                                                                                     if (widget.isEditingOrder == true && (postAddToBillingModel.total != widget.existingOrder?.data!.total && widget.existingOrder?.data!.orderStatus == "WAITLIST")) {
-                                                                                      if ((selectedValue == null || selectedValue == 'N/A') && selectDineIn == true) {
+                                                                                      if ((selectedValue == null || selectedValue == 'N/A') && selectedOrderType == OrderType.dineIn) {
                                                                                         showToast("Table number is required for DINE-IN orders", context, color: false);
                                                                                         setState(() {
                                                                                           orderLoad = false;
@@ -5151,7 +5317,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                             : ElevatedButton(
                                                                                 onPressed: () {
                                                                                   /* Full payment */
-                                                                                  if (selectedValue == null && selectDineIn == true) {
+                                                                                  if (selectedValue == null && selectedOrderType == OrderType.dineIn) {
                                                                                     showToast("Table number is required for DINE-IN orders", context, color: false);
                                                                                   } else {
                                                                                     if ((widget.isEditingOrder == false || widget.isEditingOrder == null) || (widget.isEditingOrder == true && widget.existingOrder?.data!.orderStatus == "WAITLIST")) {
@@ -5175,9 +5341,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                                         final orderPayload = buildOrderPayload(
                                                                                           postAddToBillingModel: postAddToBillingModel,
-                                                                                          tableId: selectDineIn == true ? tableId : null,
+                                                                                          tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                           orderStatus: 'COMPLETED',
-                                                                                          orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                          orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                           discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                           isDiscountApplied: isDiscountApplied,
                                                                                           tipAmount: tipController.text,
@@ -5202,9 +5368,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                                         final orderPayload = buildOrderPayload(
                                                                                           postAddToBillingModel: postAddToBillingModel,
-                                                                                          tableId: selectDineIn == true ? tableId : null,
+                                                                                          tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                           orderStatus: 'COMPLETED',
-                                                                                          orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                          orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                           discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                           isDiscountApplied: isDiscountApplied,
                                                                                           tipAmount: tipController.text,
@@ -5237,9 +5403,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                                           final orderPayload = buildOrderPayload(
                                                                                             postAddToBillingModel: postAddToBillingModel,
-                                                                                            tableId: selectDineIn == true ? tableId : null,
+                                                                                            tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                             orderStatus: 'COMPLETED',
-                                                                                            orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                            orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                             discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                             isDiscountApplied: isDiscountApplied,
                                                                                             tipAmount: tipController.text,
@@ -5301,7 +5467,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                           }
 
                                                                           if (selectedValue == null &&
-                                                                              selectDineIn == true) {
+                                                                              selectedOrderType == OrderType.dineIn) {
                                                                             showToast(
                                                                               "Table number is required for DINE-IN orders",
                                                                               context,
@@ -5335,9 +5501,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                             final orderPayload =
                                                                                 buildOrderPayload(
                                                                               postAddToBillingModel: postAddToBillingModel,
-                                                                              tableId: selectDineIn == true ? tableId : null,
+                                                                              tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                               orderStatus: 'COMPLETED',
-                                                                              orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                              orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                               discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                               isDiscountApplied: isDiscountApplied,
                                                                               tipAmount: tipController.text,
@@ -5371,9 +5537,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                               final orderPayload = buildOrderPayload(
                                                                                 postAddToBillingModel: postAddToBillingModel,
-                                                                                tableId: selectDineIn == true ? tableId : null,
+                                                                                tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                 orderStatus: 'COMPLETED',
-                                                                                orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                 discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                 isDiscountApplied: isDiscountApplied,
                                                                                 tipAmount: tipController.text,
@@ -5411,9 +5577,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                               final orderPayload = buildOrderPayload(
                                                                                 postAddToBillingModel: postAddToBillingModel,
-                                                                                tableId: selectDineIn == true ? tableId : null,
+                                                                                tableId: selectedOrderType == OrderType.dineIn ? tableId : null,
                                                                                 orderStatus: 'COMPLETED',
-                                                                                orderType: selectDineIn == true ? 'DINE-IN' : 'TAKE-AWAY',
+                                                                                orderType: selectedOrderType == OrderType.dineIn ? 'DINE-IN' : 'TAKE-AWAY',
                                                                                 discountAmount: postAddToBillingModel.totalDiscount!.toStringAsFixed(2),
                                                                                 isDiscountApplied: isDiscountApplied,
                                                                                 tipAmount: tipController.text,
@@ -5504,7 +5670,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
             billingItems.clear();
             selectedValue = null;
             tableId = null;
-            selectDineIn = true;
+            selectedOrderType = OrderType.dineIn;
             isCompleteOrder = false;
             isSplitPayment = false;
             amountController.clear();
@@ -5543,7 +5709,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
             billingItems.clear();
             selectedValue = null;
             tableId = null;
-            selectDineIn = true;
+            selectedOrderType = OrderType.dineIn;
             isCompleteOrder = false;
             isSplitPayment = false;
             amountController.clear();

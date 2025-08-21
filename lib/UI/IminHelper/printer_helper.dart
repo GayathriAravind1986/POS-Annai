@@ -8,6 +8,7 @@ Widget getThermalReceiptWidget({
   required String businessName,
   required String tamilTagline,
   required String address,
+  required String gst,
   required String phone,
   required List<Map<String, dynamic>> items,
   required double subtotal,
@@ -60,6 +61,14 @@ Widget getThermalReceiptWidget({
                   ),
                   textAlign: TextAlign.center,
                 ),
+                if (gst != "N/A")
+                  Text(
+                    "GST: $gst",
+                    style: const TextStyle(
+                      fontSize: 18, // Increased from 12
+                      color: blackColor,
+                    ),
+                  ),
                 Text(
                   "Phone: $phone",
                   style: const TextStyle(
