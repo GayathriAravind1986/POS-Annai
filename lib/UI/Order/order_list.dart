@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,10 +19,15 @@ import 'package:simple/UI/Order/pop_view_order.dart';
 class OrderView extends StatelessWidget {
   final GlobalKey<OrderViewViewState>? orderAllKey;
   final String type;
+  final String? selectedTableName;
+  final String? selectedWaiterName;
+
   const OrderView({
     super.key,
     required this.type,
     this.orderAllKey,
+    this.selectedTableName,
+    this.selectedWaiterName,
   });
 
   @override
@@ -33,6 +37,8 @@ class OrderView extends StatelessWidget {
       child: OrderViewView(
         type: type,
         orderAllKey: orderAllKey,
+        selectedTableName: selectedTableName,
+        selectedWaiterName: selectedWaiterName,
       ),
     );
   }
@@ -41,10 +47,15 @@ class OrderView extends StatelessWidget {
 class OrderViewView extends StatefulWidget {
   final String type;
   final GlobalKey<OrderViewViewState>? orderAllKey;
+  final String? selectedTableName;
+  final String? selectedWaiterName;
+
   const OrderViewView({
     super.key,
     required this.type,
     this.orderAllKey,
+    this.selectedTableName,
+    this.selectedWaiterName,
   });
 
   @override
@@ -104,10 +115,54 @@ class OrderViewViewState extends State<OrderViewView> {
 
   @override
   Widget build(BuildContext context) {
-    type = widget.type == "Takeaway" ? "TAKE-AWAY" : "DINE-IN";
+    String? type;
+    switch (widget.type) {
+      case "Line":
+        type = "LINE";
+        break;
+      case "Parcel":
+        type = "PARCEL";
+        break;
+      case "AC":
+        type = "AC";
+        break;
+      case "HD":
+        type = "HD";
+        break;
+      case "SWIGGY":
+        type = "SWIGGY";
+        break;
+      default:
+        type = null; // for "All"
+    }
+
+    // Apply filtering logic
     final filteredOrders = getOrderListTodayModel.data?.where((order) {
-          if (widget.type == "All") return true;
-          return order.orderType?.toUpperCase() == type;
+          // Filter by order type
+          bool typeMatch = true;
+          if (widget.type != "All") {
+            typeMatch = order.orderType?.toUpperCase() == type;
+          }
+
+          // Filter by table name
+          bool tableMatch = true;
+          if (widget.selectedTableName != null &&
+              widget.selectedTableName!.isNotEmpty) {
+            tableMatch = order.tableName?.toLowerCase() ==
+                widget.selectedTableName?.toLowerCase();
+          }
+
+          // Filter by waiter name
+          bool waiterMatch = true;
+          if (widget.selectedWaiterName != null &&
+              widget.selectedWaiterName!.isNotEmpty) {
+            // Assuming you have waiter name in your order model
+            // You might need to adjust this based on your actual model structure
+            waiterMatch = order.waiterName?.toLowerCase() ==
+                widget.selectedWaiterName?.toLowerCase();
+          }
+
+          return typeMatch && tableMatch && waiterMatch;
         }).toList() ??
         [];
 
@@ -132,165 +187,187 @@ class OrderViewViewState extends State<OrderViewView> {
                       weight: FontWeight.w500,
                     ),
                   ))
-              : Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GridView.builder(
-                    itemCount: filteredOrders.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1.8,
-                    ),
-                    itemBuilder: (context, index) {
-                      final order = filteredOrders[index];
-                      final payment = order.payments?.isNotEmpty == true
-                          ? order.payments!.first
-                          : null;
-
-                      return Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+              : filteredOrders.isEmpty
+                  ? Container(
+                      padding: EdgeInsets.only(
+                          top: MediaQuery.of(context).size.height * 0.1),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "No Orders Found for Selected Filter !!!",
+                        style: MyTextStyle.f16(
+                          greyColor,
+                          weight: FontWeight.w500,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 🔹 Order ID & Total
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      "Order ID: ${order.orderNumber ?? '--'}",
-                                      style: MyTextStyle.f14(appPrimaryColor,
-                                          weight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  Text(
-                                    "₹${order.total?.toStringAsFixed(2) ?? '0.00'}",
-                                    style: MyTextStyle.f14(appPrimaryColor,
-                                        weight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Time: ${formatTime(order.invoice?.date)}",
-                                  ),
-                                  Text(
-                                    payment?.paymentMethod != null &&
-                                            payment!.paymentMethod!.isNotEmpty
-                                        ? "Payment: ${payment.paymentMethod}: ₹${payment.amount?.toStringAsFixed(2) ?? '0.00'}"
-                                        : "Payment: N/A",
-                                    style: MyTextStyle.f12(greyColor),
-                                  ),
-                                ],
-                              ),
+                      ))
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GridView.builder(
+                        itemCount: filteredOrders.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 1.8,
+                        ),
+                        itemBuilder: (context, index) {
+                          final order = filteredOrders[index];
+                          final payment = order.payments?.isNotEmpty == true
+                              ? order.payments!.first
+                              : null;
 
-                              const SizedBox(height: 6),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text("Type: ${order.orderType ?? '--'}"),
-                                  Text(
-                                    "Status: ${order.orderStatus}",
-                                    style: TextStyle(
-                                      color: order.orderStatus == 'COMPLETED'
-                                          ? greenColor
-                                          : orangeColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 6),
-                              Text("Table: ${order.tableName ?? 'N/A'}"),
-                              const Spacer(),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                mainAxisSize: MainAxisSize.max,
+                          return Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      IconButton(
-                                        padding: EdgeInsets.zero,
-                                        constraints: BoxConstraints(),
-                                        icon: Icon(Icons.remove_red_eye,
-                                            color: appPrimaryColor, size: 20),
-                                        onPressed: () {
-                                          setState(() {
-                                            view = true;
-                                          });
-                                          context
-                                              .read<OrderTodayBloc>()
-                                              .add(ViewOrder(order.id));
-                                        },
-                                      ),
-                                      SizedBox(width: 4),
-                                      // if (order.orderStatus == "WAITLIST")
-                                      IconButton(
-                                        padding: EdgeInsets.zero,
-                                        constraints: BoxConstraints(),
-                                        icon: Icon(Icons.edit,
-                                            color: appPrimaryColor, size: 20),
-                                        onPressed: () {
-                                          setState(() {
-                                            view = false;
-                                          });
-                                          context
-                                              .read<OrderTodayBloc>()
-                                              .add(ViewOrder(order.id));
-                                        },
-                                      ),
-                                      SizedBox(width: 4),
-                                      IconButton(
-                                        padding: EdgeInsets.zero,
-                                        constraints: BoxConstraints(),
-                                        icon: Icon(Icons.print_outlined,
-                                            color: appPrimaryColor, size: 20),
-                                        onPressed: () {
-                                          setState(() {
-                                            view = true;
-                                          });
-                                          context
-                                              .read<OrderTodayBloc>()
-                                              .add(ViewOrder(order.id));
-                                        },
-                                      ),
-                                      SizedBox(width: 4),
-                                      if (order.orderStatus != 'COMPLETED')
-                                        IconButton(
-                                          padding: EdgeInsets.zero,
-                                          constraints: BoxConstraints(),
-                                          icon: Icon(Icons.delete,
-                                              color: appPrimaryColor, size: 20),
-                                          onPressed: () {
-                                            context
-                                                .read<OrderTodayBloc>()
-                                                .add(DeleteOrder(order.id));
-                                          },
+                                      Flexible(
+                                        child: Text(
+                                          "Order ID: ${order.orderNumber ?? '--'}",
+                                          style: MyTextStyle.f14(
+                                              appPrimaryColor,
+                                              weight: FontWeight.bold),
                                         ),
+                                      ),
+                                      Text(
+                                        "₹${order.total?.toStringAsFixed(2) ?? '0.00'}",
+                                        style: MyTextStyle.f14(appPrimaryColor,
+                                            weight: FontWeight.bold),
+                                      ),
                                     ],
                                   ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Time: ${formatTime(order.invoice?.date)}",
+                                      ),
+                                      Text(
+                                        payment?.paymentMethod != null &&
+                                                payment!
+                                                    .paymentMethod!.isNotEmpty
+                                            ? "Payment: ${payment.paymentMethod}: ₹${payment.amount?.toStringAsFixed(2) ?? '0.00'}"
+                                            : "Payment: N/A",
+                                        style: MyTextStyle.f12(greyColor),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Type: ${order.orderType ?? '--'}"),
+                                      Text(
+                                        "Status: ${order.orderStatus}",
+                                        style: TextStyle(
+                                          color:
+                                              order.orderStatus == 'COMPLETED'
+                                                  ? greenColor
+                                                  : orangeColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          "Table: ${order.tableName ?? 'N/A'}"),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            padding: EdgeInsets.zero,
+                                            constraints: BoxConstraints(),
+                                            icon: Icon(Icons.remove_red_eye,
+                                                color: appPrimaryColor,
+                                                size: 20),
+                                            onPressed: () {
+                                              setState(() {
+                                                view = true;
+                                              });
+                                              context
+                                                  .read<OrderTodayBloc>()
+                                                  .add(ViewOrder(order.id));
+                                            },
+                                          ),
+                                          SizedBox(width: 4),
+                                          IconButton(
+                                            padding: EdgeInsets.zero,
+                                            constraints: BoxConstraints(),
+                                            icon: Icon(Icons.edit,
+                                                color: appPrimaryColor,
+                                                size: 20),
+                                            onPressed: () {
+                                              setState(() {
+                                                view = false;
+                                              });
+                                              context
+                                                  .read<OrderTodayBloc>()
+                                                  .add(ViewOrder(order.id));
+                                            },
+                                          ),
+                                          SizedBox(width: 4),
+                                          IconButton(
+                                            padding: EdgeInsets.zero,
+                                            constraints: BoxConstraints(),
+                                            icon: Icon(Icons.print_outlined,
+                                                color: appPrimaryColor,
+                                                size: 20),
+                                            onPressed: () {
+                                              setState(() {
+                                                view = true;
+                                              });
+                                              context
+                                                  .read<OrderTodayBloc>()
+                                                  .add(ViewOrder(order.id));
+                                            },
+                                          ),
+                                          SizedBox(width: 4),
+                                          if (order.orderStatus != 'COMPLETED')
+                                            IconButton(
+                                              padding: EdgeInsets.zero,
+                                              constraints: BoxConstraints(),
+                                              icon: Icon(Icons.delete,
+                                                  color: appPrimaryColor,
+                                                  size: 20),
+                                              onPressed: () {
+                                                context
+                                                    .read<OrderTodayBloc>()
+                                                    .add(DeleteOrder(order.id));
+                                              },
+                                            ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
                                 ],
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
     }
 
     return BlocBuilder<OrderTodayBloc, dynamic>(
@@ -401,6 +478,7 @@ class OrderViewViewState extends State<OrderViewView> {
 
   void _handle401Error() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await SharedPreferences.getInstance();
     await sharedPreferences.remove("token");
     await sharedPreferences.clear();
     showToast("Session expired. Please login again.", context, color: false);

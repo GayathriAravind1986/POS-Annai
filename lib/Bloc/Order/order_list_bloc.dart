@@ -19,6 +19,10 @@ class ViewOrder extends OrderTodayEvent {
   ViewOrder(this.orderId);
 }
 
+class TableDine extends OrderTodayEvent {}
+
+class WaiterDine extends OrderTodayEvent {}
+
 class OrderTodayBloc extends Bloc<OrderTodayEvent, dynamic> {
   OrderTodayBloc() : super(dynamic) {
     on<OrderTodayList>((event, emit) async {
@@ -44,12 +48,19 @@ class OrderTodayBloc extends Bloc<OrderTodayEvent, dynamic> {
         emit(error);
       });
     });
-    // on<AddToBilling>((event, emit) async {
-    //   await ApiProvider().postAddToBillingAPI(event.billingItems).then((value) {
-    //     emit(value);
-    //   }).catchError((error) {
-    //     emit(error);
-    //   });
-    // });
+    on<TableDine>((event, emit) async {
+      await ApiProvider().getTableAPI().then((value) {
+        emit(value);
+      }).catchError((error) {
+        emit(error);
+      });
+    });
+    on<WaiterDine>((event, emit) async {
+      await ApiProvider().getWaiterAPI().then((value) {
+        emit(value);
+      }).catchError((error) {
+        emit(error);
+      });
+    });
   }
 }

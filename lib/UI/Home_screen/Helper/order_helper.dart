@@ -3,6 +3,7 @@ import 'package:simple/ModelClass/Cart/Post_Add_to_billing_model.dart';
 Map<String, dynamic> buildOrderPayload({
   required PostAddToBillingModel postAddToBillingModel,
   String? tableId,
+  String? waiterId,
   required String orderStatus,
   required String orderType,
   required String discountAmount,
@@ -36,6 +37,7 @@ Map<String, dynamic> buildOrderPayload({
     "orderType": orderType,
     "subtotal": postAddToBillingModel.subtotal,
     "tableNo": tableId,
+    "waiter": waiterId,
     "tax": postAddToBillingModel.totalTax,
     "total": postAddToBillingModel.total,
     "discountAmount": double.parse(discountAmount),

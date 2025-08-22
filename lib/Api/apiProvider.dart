@@ -18,6 +18,7 @@ import 'package:simple/ModelClass/StockIn/getLocationModel.dart';
 import 'package:simple/ModelClass/StockIn/getSupplierLocationModel.dart';
 import 'package:simple/ModelClass/StockIn/get_add_product_model.dart';
 import 'package:simple/ModelClass/StockIn/saveStockInModel.dart';
+import 'package:simple/ModelClass/Waiter/getWaiterModel.dart';
 import 'package:simple/Reusable/constant.dart';
 
 import '../ModelClass/Table/Get_table_model.dart';
@@ -208,6 +209,47 @@ class ApiProvider {
     }
   }
 
+  /// Waiter Details -Fetch API Integration
+  Future<GetWaiterModel> getWaiterAPI() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+    try {
+      var dio = Dio();
+      var response = await dio.request(
+        '${Constants.baseUrl}api/waiter',
+        options: Options(
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data['success'] == true) {
+          GetWaiterModel getWaiterResponse =
+              GetWaiterModel.fromJson(response.data);
+          return getWaiterResponse;
+        }
+      } else {
+        return GetWaiterModel()
+          ..errorResponse = ErrorResponse(
+            message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+            statusCode: response.statusCode,
+          );
+      }
+      return GetWaiterModel()
+        ..errorResponse = ErrorResponse(
+          message: "Unexpected error occurred.",
+          statusCode: 500,
+        );
+    } on DioException catch (dioError) {
+      final errorResponse = handleError(dioError);
+      return GetWaiterModel()..errorResponse = errorResponse;
+    } catch (error) {
+      return GetWaiterModel()..errorResponse = handleError(error);
+    }
+  }
+
   /// Stock Details - Fetch API Integration
   Future<GetStockMaintanencesModel> getStockDetailsAPI() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -251,13 +293,16 @@ class ApiProvider {
 
   /// Add to Billing - Post API Integration
   Future<PostAddToBillingModel> postAddToBillingAPI(
-      List<Map<String, dynamic>> billingItems, bool? isDiscount) async {
+      List<Map<String, dynamic>> billingItems,
+      bool? isDiscount,
+      String? orderType) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
     try {
       final dataMap = {
         "items": billingItems,
-        "isApplicableDiscount": isDiscount
+        "isApplicableDiscount": isDiscount,
+        "orderType": orderType
       };
       var data = json.encode(dataMap);
       var dio = Dio();

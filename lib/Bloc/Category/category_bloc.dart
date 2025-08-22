@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:simple/Api/apiProvider.dart';
+import 'package:simple/UI/Home_screen/home_screen.dart';
 
 abstract class FoodCategoryEvent {}
 
@@ -14,7 +15,8 @@ class FoodProductItem extends FoodCategoryEvent {
 class AddToBilling extends FoodCategoryEvent {
   List<Map<String, dynamic>> billingItems;
   bool? isDiscount;
-  AddToBilling(this.billingItems, this.isDiscount);
+  final OrderType? orderType;
+  AddToBilling(this.billingItems, this.isDiscount, this.orderType);
 }
 
 class GenerateOrder extends FoodCategoryEvent {
@@ -29,6 +31,8 @@ class UpdateOrder extends FoodCategoryEvent {
 }
 
 class TableDine extends FoodCategoryEvent {}
+
+class WaiterDine extends FoodCategoryEvent {}
 
 class StockDetails extends FoodCategoryEvent {}
 
@@ -52,7 +56,11 @@ class FoodCategoryBloc extends Bloc<FoodCategoryEvent, dynamic> {
     });
     on<AddToBilling>((event, emit) async {
       await ApiProvider()
-          .postAddToBillingAPI(event.billingItems, event.isDiscount)
+          .postAddToBillingAPI(
+        event.billingItems,
+        event.isDiscount,
+        event.orderType?.apiValue,
+      )
           .then((value) {
         emit(value);
       }).catchError((error) {
@@ -79,6 +87,13 @@ class FoodCategoryBloc extends Bloc<FoodCategoryEvent, dynamic> {
     });
     on<TableDine>((event, emit) async {
       await ApiProvider().getTableAPI().then((value) {
+        emit(value);
+      }).catchError((error) {
+        emit(error);
+      });
+    });
+    on<WaiterDine>((event, emit) async {
+      await ApiProvider().getWaiterAPI().then((value) {
         emit(value);
       }).catchError((error) {
         emit(error);
