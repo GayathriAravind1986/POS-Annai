@@ -298,54 +298,54 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                       ElevatedButton.icon(
                         onPressed: () async {
                           try {
-                            await Future.delayed(
-                                const Duration(milliseconds: 300));
-                            await WidgetsBinding.instance.endOfFrame;
-                            Uint8List? imageBytes =
-                                await captureMonochromeReceipt(receiptKey);
-                            if (imageBytes != null) {
-                              await printerService.init();
-                              await printerService.printBitmap(imageBytes);
-                              // await Future.delayed(
-                              //     const Duration(seconds: 2));
-                              await printerService.fullCut();
-                              Navigator.pop(context);
-                            }
                             // await Future.delayed(
                             //     const Duration(milliseconds: 300));
                             // await WidgetsBinding.instance.endOfFrame;
-                            //
                             // Uint8List? imageBytes =
                             //     await captureMonochromeReceipt(receiptKey);
-                            //
                             // if (imageBytes != null) {
                             //   await printerService.init();
                             //   await printerService.printBitmap(imageBytes);
+                            //   // await Future.delayed(
+                            //   //     const Duration(seconds: 2));
                             //   await printerService.fullCut();
-                            //
-                            //   final printer =
-                            //       PrinterNetworkManager("192.168.1.96");
-                            //   await printer.connect();
-                            //
-                            //   final profile = await CapabilityProfile.load();
-                            //   final generator =
-                            //       Generator(PaperSize.mm80, profile);
-                            //
-                            //   // Convert bytes -> image for esc_pos
-                            //   final decodedImage = img.decodeImage(imageBytes);
-                            //   if (decodedImage != null) {
-                            //     List<int> bytes = [];
-                            //     bytes += generator.imageRaster(decodedImage);
-                            //     bytes += generator.feed(2);
-                            //     bytes += generator.cut();
-                            //
-                            //     await printer.printTicket(bytes);
-                            //   }
-                            //
-                            //   await printer.disconnect();
+                            //   Navigator.pop(context);
                             // }
-                            //
-                            // Navigator.pop(context);
+                            await Future.delayed(
+                                const Duration(milliseconds: 300));
+                            await WidgetsBinding.instance.endOfFrame;
+
+                            Uint8List? imageBytes =
+                                await captureMonochromeReceipt(receiptKey);
+
+                            if (imageBytes != null) {
+                              await printerService.init();
+                              await printerService.printBitmap(imageBytes);
+                              await printerService.fullCut();
+
+                              final printer =
+                                  PrinterNetworkManager("192.168.1.96");
+                              await printer.connect();
+
+                              final profile = await CapabilityProfile.load();
+                              final generator =
+                                  Generator(PaperSize.mm80, profile);
+
+                              // Convert bytes -> image for esc_pos
+                              final decodedImage = img.decodeImage(imageBytes);
+                              if (decodedImage != null) {
+                                List<int> bytes = [];
+                                bytes += generator.imageRaster(decodedImage);
+                                bytes += generator.feed(2);
+                                bytes += generator.cut();
+
+                                await printer.printTicket(bytes);
+                              }
+
+                              await printer.disconnect();
+                            }
+
+                            Navigator.pop(context);
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Print failed: $e")),

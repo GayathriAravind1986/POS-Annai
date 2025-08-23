@@ -131,6 +131,8 @@ class ApiProvider {
       String? catId, String? searchKey) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
+    debugPrint(
+        "baseUrlProdOrder:${Constants.baseUrl}api/products/pos/category-products?filter=false&categoryId=$catId&search=$searchKey");
     try {
       var dio = Dio();
       var response = await dio.request(
@@ -344,14 +346,16 @@ class ApiProvider {
   }
 
   /// orderToday - Fetch API Integration
-  Future<GetOrderListTodayModel> getOrderTodayAPI(
-      String? fromDate, String? toDate) async {
+  Future<GetOrderListTodayModel> getOrderTodayAPI(String? fromDate,
+      String? toDate, String? tableId, String? waiterId) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
+    debugPrint(
+        "baseUrlOrder:${Constants.baseUrl}api/generate-order?from_date=$fromDate&to_date=$toDate&tableNo=$tableId&waiter=$waiterId");
     try {
       var dio = Dio();
       var response = await dio.request(
-        '${Constants.baseUrl}api/generate-order?from_date=$fromDate&to_date=$toDate',
+        '${Constants.baseUrl}api/generate-order?from_date=$fromDate&to_date=$toDate&tableNo=$tableId&waiter=$waiterId',
         options: Options(
           method: 'GET',
           headers: {
@@ -386,14 +390,16 @@ class ApiProvider {
   }
 
   /// ReportToday - Fetch API Integration
-  Future<GetReportModel> getReportTodayAPI(
-      String? fromDate, String? toDate) async {
+  Future<GetReportModel> getReportTodayAPI(String? fromDate, String? toDate,
+      String? tableId, String? waiterId) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
+    debugPrint(
+        "baseUrlReport:'${Constants.baseUrl}api/generate-order/sales-report?from_date=$fromDate&to_date=$toDate&limit=200&tableNo=$tableId&waiter=$waiterId");
     try {
       var dio = Dio();
       var response = await dio.request(
-        '${Constants.baseUrl}api/generate-order/sales-report?from_date=$fromDate&to_date=$toDate&limit=200',
+        '${Constants.baseUrl}api/generate-order/sales-report?from_date=$fromDate&to_date=$toDate&limit=200&tableNo=$tableId&waiter=$waiterId',
         options: Options(
           method: 'GET',
           headers: {
