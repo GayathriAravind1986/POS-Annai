@@ -62,8 +62,12 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
     double total = (invoice.total ?? 0.0).toDouble();
     String orderType = order.orderType ?? '';
     String orderStatus = order.orderStatus ?? '';
-    String tableName =
-        orderType == 'DINE-IN' ? (invoice.tableNum ?? 'N/A') : 'N/A';
+    String tableName = orderType == 'LINE' || orderType == 'AC'
+        ? (invoice.tableNum ?? 'N/A')
+        : 'N/A';
+    String waiterName = orderType == 'LINE' || orderType == 'AC'
+        ? (invoice.waiterNum ?? 'N/A')
+        : 'N/A';
     String date = DateFormat('dd/MM/yyyy hh:mm a').format(
         DateFormat('M/d/yyyy, h:mm:ss a').parse(invoice.date.toString()));
 
@@ -127,6 +131,7 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                         total: total,
                         orderNumber: orderNumber,
                         tableName: tableName,
+                        waiterName: waiterName,
                         orderType: orderType,
                         date: date,
                         status: orderStatus,

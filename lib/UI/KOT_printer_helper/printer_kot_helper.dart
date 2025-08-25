@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:simple/Reusable/color.dart';
 
-Widget getThermalReceiptWidget({
+Widget getThermalReceiptKOTWidget({
   required String businessName,
   required String tamilTagline,
   required String address,
@@ -107,15 +107,9 @@ Widget getThermalReceiptWidget({
           ),
 
           // Items
-
           ...items.map((item) => Column(
                 children: [
-                  _buildThermalItemRow(
-                    item['name'],
-                    item['qty'],
-                    item['price'],
-                    item['total'],
-                  ),
+                  _buildThermalItemRow(item['name'], item['qty']),
                   const SizedBox(height: 5),
                 ],
               )),
@@ -126,19 +120,6 @@ Widget getThermalReceiptWidget({
             color: blackColor,
             margin: const EdgeInsets.symmetric(vertical: 4),
           ),
-
-          // Totals
-          _buildThermalTotalRow("Subtotal", subtotal),
-          _buildThermalTotalRow("Tax", tax),
-          _buildThermalTotalRow("TOTAL", total, isBold: true),
-
-          // Separator line
-          Container(
-            height: 4,
-            color: blackColor,
-            margin: const EdgeInsets.symmetric(vertical: 4),
-          ),
-
           Text(
             "Paid via: $paidBy",
             style: const TextStyle(
@@ -240,33 +221,11 @@ Widget _buildThermalHeaderRow() {
           textAlign: TextAlign.center,
         ),
       ),
-      Expanded(
-        flex: 3,
-        child: Text(
-          "Price",
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: blackColor), // Increased from 12
-          textAlign: TextAlign.center,
-        ),
-      ),
-      Expanded(
-        flex: 3,
-        child: Text(
-          "Total",
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: blackColor), // Increased from 12
-          textAlign: TextAlign.end,
-        ),
-      ),
     ],
   );
 }
 
-Widget _buildThermalItemRow(String name, int qty, double price, double total) {
+Widget _buildThermalItemRow(String name, int qty) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 1.0),
     child: Row(
@@ -289,66 +248,12 @@ Widget _buildThermalItemRow(String name, int qty, double price, double total) {
                 fontSize: 18, color: blackColor), // Increased from 12
           ),
         ),
-        Expanded(
-          flex: 3,
-          child: Text(
-            '₹${price.toStringAsFixed(2)}',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18, // Increased from 12
-              color: blackColor,
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Text(
-            '₹${total.toStringAsFixed(2)}',
-            textAlign: TextAlign.end,
-            style: const TextStyle(
-              fontSize: 18, // Increased from 12
-              color: blackColor,
-            ),
-          ),
-        ),
       ],
     ),
   );
 }
 
-Widget _buildThermalTotalRow(String label, double amount,
-    {bool isBold = false}) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 1.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontSize: isBold
-                ? 24
-                : 18, // Larger for TOTAL, increased base from 12 to 14
-            color: blackColor,
-          ),
-        ),
-        Text(
-          '₹${amount.toStringAsFixed(2)}',
-          style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            fontSize: isBold
-                ? 24
-                : 18, // Larger for TOTAL, increased base from 12 to 14
-            color: blackColor,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Future<Uint8List?> captureMonochromeReceipt(GlobalKey key) async {
+Future<Uint8List?> captureMonochromeKOTReceipt(GlobalKey key) async {
   try {
     RenderRepaintBoundary boundary =
         key.currentContext!.findRenderObject() as RenderRepaintBoundary;

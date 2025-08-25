@@ -18,6 +18,7 @@ import 'package:simple/ModelClass/StockIn/getLocationModel.dart';
 import 'package:simple/ModelClass/StockIn/getSupplierLocationModel.dart';
 import 'package:simple/ModelClass/StockIn/get_add_product_model.dart';
 import 'package:simple/ModelClass/StockIn/saveStockInModel.dart';
+import 'package:simple/ModelClass/User/getUserModel.dart';
 import 'package:simple/ModelClass/Waiter/getWaiterModel.dart';
 import 'package:simple/Reusable/constant.dart';
 
@@ -68,6 +69,10 @@ class ApiProvider {
             "role",
             postLoginResponse.user!.role.toString(),
           );
+          sharedPreferences.setString(
+            "userId",
+            postLoginResponse.user!.id.toString(),
+          );
           return postLoginResponse;
         }
       }
@@ -85,7 +90,8 @@ class ApiProvider {
   Future<GetCategoryModel> getCategoryAPI() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
-    debugPrint("token:$token");
+    var userId = sharedPreferences.getString("userId");
+    debugPrint("userId:$userId");
 
     try {
       var dio = Dio();
@@ -252,6 +258,46 @@ class ApiProvider {
     }
   }
 
+  /// userDetails - Fetch API Integration
+  Future<GetUserModel> getUserDetailsAPI() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+    try {
+      var dio = Dio();
+      var response = await dio.request(
+        '${Constants.baseUrl}auth/users',
+        options: Options(
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data['success'] == true) {
+          GetUserModel getUserResponse = GetUserModel.fromJson(response.data);
+          return getUserResponse;
+        }
+      } else {
+        return GetUserModel()
+          ..errorResponse = ErrorResponse(
+            message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+            statusCode: response.statusCode,
+          );
+      }
+      return GetUserModel()
+        ..errorResponse = ErrorResponse(
+          message: "Unexpected error occurred.",
+          statusCode: 500,
+        );
+    } on DioException catch (dioError) {
+      final errorResponse = handleError(dioError);
+      return GetUserModel()..errorResponse = errorResponse;
+    } catch (error) {
+      return GetUserModel()..errorResponse = handleError(error);
+    }
+  }
+
   /// Stock Details - Fetch API Integration
   Future<GetStockMaintanencesModel> getStockDetailsAPI() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -346,16 +392,20 @@ class ApiProvider {
   }
 
   /// orderToday - Fetch API Integration
-  Future<GetOrderListTodayModel> getOrderTodayAPI(String? fromDate,
-      String? toDate, String? tableId, String? waiterId) async {
+  Future<GetOrderListTodayModel> getOrderTodayAPI(
+      String? fromDate,
+      String? toDate,
+      String? tableId,
+      String? waiterId,
+      String? operator) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
     debugPrint(
-        "baseUrlOrder:${Constants.baseUrl}api/generate-order?from_date=$fromDate&to_date=$toDate&tableNo=$tableId&waiter=$waiterId");
+        "baseUrlOrder:${Constants.baseUrl}api/generate-order?from_date=$fromDate&to_date=$toDate&tableNo=$tableId&waiter=$waiterId&operator=$operator");
     try {
       var dio = Dio();
       var response = await dio.request(
-        '${Constants.baseUrl}api/generate-order?from_date=$fromDate&to_date=$toDate&tableNo=$tableId&waiter=$waiterId',
+        '${Constants.baseUrl}api/generate-order?from_date=$fromDate&to_date=$toDate&tableNo=$tableId&waiter=$waiterId&operator=$operator',
         options: Options(
           method: 'GET',
           headers: {

@@ -21,8 +21,7 @@ class OrderView extends StatelessWidget {
   final String type;
   final String? selectedTableName;
   final String? selectedWaiterName;
-  final String? selectTableValue;
-  final String? selectWaiterValue;
+  final String? selectOperator;
   final GetOrderListTodayModel? sharedOrderData;
   final bool isLoading;
   final ValueNotifier<bool>? refreshNotifier;
@@ -35,8 +34,7 @@ class OrderView extends StatelessWidget {
     this.selectedWaiterName,
     this.sharedOrderData,
     this.isLoading = false,
-    this.selectTableValue,
-    this.selectWaiterValue,
+    this.selectOperator,
     this.refreshNotifier,
   });
 
@@ -50,8 +48,7 @@ class OrderView extends StatelessWidget {
       selectedWaiterName: selectedWaiterName,
       sharedOrderData: sharedOrderData,
       isLoading: isLoading,
-      selectWaiterValue: selectWaiterValue,
-      selectTableValue: selectTableValue,
+      selectOperator: selectOperator,
       refreshNotifier: refreshNotifier,
     );
   }
@@ -61,8 +58,7 @@ class OrderViewView extends StatefulWidget {
   final String type;
   final String? selectedTableName;
   final String? selectedWaiterName;
-  final String? selectTableValue;
-  final String? selectWaiterValue;
+  final String? selectOperator;
   final GetOrderListTodayModel? sharedOrderData;
   final bool isLoading;
   final ValueNotifier<bool>? refreshNotifier;
@@ -74,8 +70,7 @@ class OrderViewView extends StatefulWidget {
     this.selectedWaiterName,
     this.sharedOrderData,
     this.isLoading = false,
-    this.selectTableValue,
-    this.selectWaiterValue,
+    this.selectOperator,
     this.refreshNotifier,
   });
 
@@ -90,33 +85,44 @@ class OrderViewViewState extends State<OrderViewView> {
   String? errorMessage;
   String? selectedTableName;
   String? selectedWaiterName;
-  String? selectTableValue;
-  String? selectWaiterValue;
+  String? selectOperator;
   bool view = false;
   final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   final yesterdayDate = DateFormat('yyyy-MM-dd')
       .format(DateTime.now().subtract(Duration(days: 1)));
   String? fromDate;
   String? type;
+  dynamic operatorId;
+  Future<void> getOperatorId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      operatorId = prefs.getString("userId");
+    });
+    debugPrint("operatorId: $operatorId");
+  }
 
   void refreshOrders() {
     if (!mounted || !context.mounted) return;
     setState(() {
       selectedTableName = null;
       selectedWaiterName = null;
+      selectOperator = null;
     });
     context.read<OrderTodayBloc>().add(
-          OrderTodayList(yesterdayDate, todayDate, "", ""),
+          OrderTodayList(yesterdayDate, todayDate, "", "", ""),
         );
     debugPrint(
         "RefreshOrders called for type: ${widget.type} - using shared data");
+    debugPrint("RefreshOrders called ${widget.selectOperator}");
   }
 
   @override
   void initState() {
     super.initState();
+    getOperatorId();
     selectedTableName = widget.selectedTableName;
     selectedWaiterName = widget.selectedWaiterName;
+    selectOperator = widget.selectOperator;
     if (widget.sharedOrderData != null) {
       getOrderListTodayModel = widget.sharedOrderData!;
     }
@@ -298,7 +304,7 @@ class OrderViewViewState extends State<OrderViewView> {
                                         },
                                       ),
                                       SizedBox(width: 4),
-                                      // if (order.orderStatus == "WAITLIST")
+                                      // if (operatorId == selectOperator)
                                       IconButton(
                                         padding: EdgeInsets.zero,
                                         constraints: BoxConstraints(),

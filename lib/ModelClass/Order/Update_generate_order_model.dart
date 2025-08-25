@@ -108,6 +108,7 @@ class Invoice {
     num? salesTax,
     num? total,
     String? orderNumber,
+    List<Kot>? kot,
     String? date,
     String? paidBy,
     String? transactionId,
@@ -127,6 +128,7 @@ class Invoice {
     _salesTax = salesTax;
     _total = total;
     _orderNumber = orderNumber;
+    _kot = kot;
     _date = date;
     _paidBy = paidBy;
     _transactionId = transactionId;
@@ -153,6 +155,12 @@ class Invoice {
     _salesTax = json['salesTax'];
     _total = json['total'];
     _orderNumber = json['orderNumber'];
+    if (json['kot'] != null) {
+      _kot = [];
+      json['kot'].forEach((v) {
+        _kot?.add(Kot.fromJson(v));
+      });
+    }
     _date = json['date'];
     _paidBy = json['paidBy'];
     _transactionId = json['transactionId'];
@@ -172,6 +180,7 @@ class Invoice {
   num? _salesTax;
   num? _total;
   String? _orderNumber;
+  List<Kot>? _kot;
   String? _date;
   String? _paidBy;
   String? _transactionId;
@@ -191,6 +200,7 @@ class Invoice {
     num? salesTax,
     num? total,
     String? orderNumber,
+    List<Kot>? kot,
     String? date,
     String? paidBy,
     String? transactionId,
@@ -211,6 +221,7 @@ class Invoice {
         salesTax: salesTax ?? _salesTax,
         total: total ?? _total,
         orderNumber: orderNumber ?? _orderNumber,
+        kot: kot ?? _kot,
         date: date ?? _date,
         paidBy: paidBy ?? _paidBy,
         transactionId: transactionId ?? _transactionId,
@@ -230,6 +241,7 @@ class Invoice {
   num? get salesTax => _salesTax;
   num? get total => _total;
   String? get orderNumber => _orderNumber;
+  List<Kot>? get kot => _kot;
   String? get date => _date;
   String? get paidBy => _paidBy;
   String? get transactionId => _transactionId;
@@ -253,6 +265,9 @@ class Invoice {
     map['salesTax'] = _salesTax;
     map['total'] = _total;
     map['orderNumber'] = _orderNumber;
+    if (_kot != null) {
+      map['kot'] = _kot?.map((v) => v.toJson()).toList();
+    }
     map['date'] = _date;
     map['paidBy'] = _paidBy;
     map['transactionId'] = _transactionId;
@@ -345,6 +360,74 @@ class InvoiceItems {
 /// _id : "68792f6b0d811d96f7a04f18"
 /// updatedAt : "2025-07-17T17:14:19.880Z"
 /// __v : 0
+///
+class Kot {
+  Kot({
+    String? name,
+    num? quantity,
+  }) {
+    _name = name;
+    _quantity = quantity;
+  }
+
+  Kot.fromJson(dynamic json) {
+    _name = json['name'];
+    _quantity = json['quantity'];
+  }
+  String? _name;
+  num? _quantity;
+  Kot copyWith({
+    String? name,
+    num? quantity,
+  }) =>
+      Kot(
+        name: name ?? _name,
+        quantity: quantity ?? _quantity,
+      );
+  String? get name => _name;
+  num? get quantity => _quantity;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['name'] = _name;
+    map['quantity'] = _quantity;
+    return map;
+  }
+}
+
+class Kotitems {
+  Kotitems({
+    String? name,
+    num? quantity,
+  }) {
+    _name = name;
+    _quantity = quantity;
+  }
+
+  Kotitems.fromJson(dynamic json) {
+    _name = json['name'];
+    _quantity = json['quantity'];
+  }
+  String? _name;
+  num? _quantity;
+  Kotitems copyWith({
+    String? name,
+    num? quantity,
+  }) =>
+      Kotitems(
+        name: name ?? _name,
+        quantity: quantity ?? _quantity,
+      );
+  String? get name => _name;
+  num? get quantity => _quantity;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['name'] = _name;
+    map['quantity'] = _quantity;
+    return map;
+  }
+}
 
 class Payments {
   Payments({

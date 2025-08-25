@@ -409,6 +409,7 @@ class Invoice {
     String? currencySymbol,
     String? printType,
     List<InvoiceItems>? invoiceItems,
+    List<KotItems>? kotItems,
     num? subtotal,
     num? salesTax,
     num? total,
@@ -417,6 +418,7 @@ class Invoice {
     String? paidBy,
     String? transactionId,
     String? tableNum,
+    String? waiterNum,
   }) {
     _businessName = businessName;
     _address = address;
@@ -425,6 +427,7 @@ class Invoice {
     _currencySymbol = currencySymbol;
     _printType = printType;
     _invoiceItems = invoiceItems;
+    _kotItems = kotItems;
     _subtotal = subtotal;
     _salesTax = salesTax;
     _total = total;
@@ -433,6 +436,7 @@ class Invoice {
     _paidBy = paidBy;
     _transactionId = transactionId;
     _tableNum = tableNum;
+    _waiterNum = waiterNum;
   }
 
   Invoice.fromJson(dynamic json) {
@@ -448,6 +452,12 @@ class Invoice {
         _invoiceItems?.add(InvoiceItems.fromJson(v));
       });
     }
+    if (json['kot_items'] != null) {
+      _kotItems = [];
+      json['kot_items'].forEach((v) {
+        _kotItems?.add(KotItems.fromJson(v));
+      });
+    }
     _subtotal = json['subtotal'];
     _salesTax = json['salesTax'];
     _total = json['total'];
@@ -456,6 +466,7 @@ class Invoice {
     _paidBy = json['paidBy'];
     _transactionId = json['transactionId'];
     _tableNum = json['tableNum'];
+    _waiterNum = json['waiterNum'];
   }
   String? _businessName;
   String? _address;
@@ -464,6 +475,7 @@ class Invoice {
   String? _currencySymbol;
   String? _printType;
   List<InvoiceItems>? _invoiceItems;
+  List<KotItems>? _kotItems;
   num? _subtotal;
   num? _salesTax;
   num? _total;
@@ -472,6 +484,7 @@ class Invoice {
   String? _paidBy;
   String? _transactionId;
   String? _tableNum;
+  String? _waiterNum;
   Invoice copyWith({
     String? businessName,
     String? address,
@@ -480,6 +493,7 @@ class Invoice {
     String? currencySymbol,
     String? printType,
     List<InvoiceItems>? invoiceItems,
+    List<KotItems>? kotItems,
     num? subtotal,
     num? salesTax,
     num? total,
@@ -488,6 +502,7 @@ class Invoice {
     String? paidBy,
     String? transactionId,
     String? tableNum,
+    String? waiterNum,
   }) =>
       Invoice(
         businessName: businessName ?? _businessName,
@@ -497,6 +512,7 @@ class Invoice {
         currencySymbol: currencySymbol ?? _currencySymbol,
         printType: printType ?? _printType,
         invoiceItems: invoiceItems ?? _invoiceItems,
+        kotItems: kotItems ?? _kotItems,
         subtotal: subtotal ?? _subtotal,
         salesTax: salesTax ?? _salesTax,
         total: total ?? _total,
@@ -505,6 +521,7 @@ class Invoice {
         paidBy: paidBy ?? _paidBy,
         transactionId: transactionId ?? _transactionId,
         tableNum: tableNum ?? _tableNum,
+        waiterNum: waiterNum ?? _waiterNum,
       );
   String? get businessName => _businessName;
   String? get address => _address;
@@ -513,6 +530,7 @@ class Invoice {
   String? get currencySymbol => _currencySymbol;
   String? get printType => _printType;
   List<InvoiceItems>? get invoiceItems => _invoiceItems;
+  List<KotItems>? get kotItems => _kotItems;
   num? get subtotal => _subtotal;
   num? get salesTax => _salesTax;
   num? get total => _total;
@@ -521,6 +539,7 @@ class Invoice {
   String? get paidBy => _paidBy;
   String? get transactionId => _transactionId;
   String? get tableNum => _tableNum;
+  String? get waiterNum => _waiterNum;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -533,6 +552,9 @@ class Invoice {
     if (_invoiceItems != null) {
       map['invoice_items'] = _invoiceItems?.map((v) => v.toJson()).toList();
     }
+    if (_kotItems != null) {
+      map['kot_items'] = _kotItems?.map((v) => v.toJson()).toList();
+    }
     map['subtotal'] = _subtotal;
     map['salesTax'] = _salesTax;
     map['total'] = _total;
@@ -541,6 +563,44 @@ class Invoice {
     map['paidBy'] = _paidBy;
     map['transactionId'] = _transactionId;
     map['tableNum'] = _tableNum;
+    map['waiterNum'] = _waiterNum;
+    return map;
+  }
+}
+
+/// name : "PANNER SCHZWAN FRIED RICE"
+/// quantity : 1
+
+class KotItems {
+  KotItems({
+    String? name,
+    num? quantity,
+  }) {
+    _name = name;
+    _quantity = quantity;
+  }
+
+  KotItems.fromJson(dynamic json) {
+    _name = json['name'];
+    _quantity = json['quantity'];
+  }
+  String? _name;
+  num? _quantity;
+  KotItems copyWith({
+    String? name,
+    num? quantity,
+  }) =>
+      KotItems(
+        name: name ?? _name,
+        quantity: quantity ?? _quantity,
+      );
+  String? get name => _name;
+  num? get quantity => _quantity;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['name'] = _name;
+    map['quantity'] = _quantity;
     return map;
   }
 }
