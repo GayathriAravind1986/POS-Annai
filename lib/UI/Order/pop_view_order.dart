@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:simple/ModelClass/Order/Get_view_order_model.dart';
@@ -11,6 +13,8 @@ import 'package:simple/UI/Home_screen/Widget/another_imin_printer/imin_abstract.
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/mock_imin_printer_chrome.dart';
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/real_device_printer.dart';
 import 'package:simple/UI/IminHelper/printer_helper.dart';
+import 'package:simple/UI/KOT_printer_helper/printer_kot_helper.dart';
+import 'package:image/image.dart' as img;
 
 class ThermalReceiptDialog extends StatefulWidget {
   final GetViewOrderModel getViewOrderModel;
@@ -23,16 +27,208 @@ class ThermalReceiptDialog extends StatefulWidget {
 
 class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
   late IPrinterService printerService;
-  final GlobalKey receiptKey = GlobalKey();
+  late IPrinterService printerServiceThermal;
+  GlobalKey normalReceiptKey = GlobalKey();
+  GlobalKey kotReceiptKey = GlobalKey();
+  final TextEditingController ipController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
+    ipController.text = "192.168.1.96";
     if (kIsWeb) {
       printerService = MockPrinterService();
+      printerServiceThermal = MockPrinterService();
     } else if (Platform.isAndroid) {
       printerService = RealPrinterService();
+      printerServiceThermal = RealPrinterService();
     } else {
       printerService = MockPrinterService();
+      printerServiceThermal = MockPrinterService();
+    }
+  }
+
+  Future<void> _showPrinterIpDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: const Text("Thermal Printer Setup"),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: ipController,
+              decoration: const InputDecoration(
+                labelText: "Thermal Printer IP Address",
+                hintText: "e.g. 192.168.1.96",
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Please enter printer IP";
+                }
+                final regex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}$');
+                if (!regex.hasMatch(value.trim())) {
+                  return "Enter valid IP (e.g. 192.168.1.96)";
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  Navigator.pop(ctx);
+                  await _startKOTPrintingThermalOnly(
+                      context, ipController.text.trim());
+                }
+              },
+              child: const Text("Connect & Print KOT"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _startKOTPrintingThermalOnly(
+      BuildContext context, String printerIp) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: appPrimaryColor),
+              SizedBox(height: 16),
+              Text("Preparing KOT for thermal printer...",
+                  style: TextStyle(color: whiteColor)),
+            ],
+          ),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 300));
+      await WidgetsBinding.instance.endOfFrame;
+
+      Uint8List? imageBytes = await captureMonochromeKOTReceipt(kotReceiptKey);
+
+      if (imageBytes != null) {
+        await printerServiceThermal.init();
+        final printer = PrinterNetworkManager(printerIp);
+        final result = await printer.connect();
+
+        if (result == PosPrintResult.success) {
+          // ✅ Connected
+          final profile = await CapabilityProfile.load();
+          final generator = Generator(PaperSize.mm58, profile);
+
+          final decodedImage = img.decodeImage(imageBytes);
+          if (decodedImage != null) {
+            List<int> bytes = [];
+            bytes += generator.reset();
+            bytes +=
+                generator.imageRaster(decodedImage, align: PosAlign.center);
+            bytes += generator.feed(2);
+            bytes += generator.cut();
+            await printer.printTicket(bytes);
+          }
+
+          await printer.disconnect();
+
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("KOT printed to thermal printer only!"),
+              backgroundColor: greenColor,
+            ),
+          );
+        } else {
+          // ❌ Failed to connect
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Failed to connect to printer ($result)"),
+              backgroundColor: redColor,
+            ),
+          );
+        }
+      } else {
+        Navigator.of(context).pop();
+        throw Exception("Failed to capture KOT receipt image");
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("KOT Print failed: $e"),
+          backgroundColor: redColor,
+        ),
+      );
+    }
+  }
+
+  Future<void> _printBillToIminOnly(BuildContext context) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                color: appPrimaryColor,
+              ),
+              SizedBox(height: 16),
+              Text("Printing to IMIN device...",
+                  style: TextStyle(color: whiteColor)),
+            ],
+          ),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 300));
+      await WidgetsBinding.instance.endOfFrame;
+
+      Uint8List? imageBytes = await captureMonochromeReceipt(normalReceiptKey);
+
+      if (imageBytes != null) {
+        await printerService.init();
+        await printerService.printBitmap(imageBytes);
+        await printerService.fullCut();
+
+        Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Bill printed successfully to IMIN device!"),
+            backgroundColor: greenColor,
+          ),
+        );
+      } else {
+        Navigator.of(context).pop();
+        throw Exception("Failed to capture bill receipt image");
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("IMIN Print failed: $e"),
+          backgroundColor: redColor,
+        ),
+      );
     }
   }
 
@@ -49,7 +245,12 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
               'total': ((e.quantity ?? 0) * (e.unitPrice ?? 0)).toDouble(),
             })
         .toList();
-
+    List<Map<String, dynamic>> kotItems = invoice.kotItems!
+        .map((e) => {
+              'name': e.name,
+              'qty': e.quantity,
+            })
+        .toList();
     String businessName = invoice.businessName ?? '';
     String address = invoice.address ?? '';
     String gst = invoice.gstNumber ?? '';
@@ -117,7 +318,7 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                     ),
                     const SizedBox(height: 16),
                     RepaintBoundary(
-                      key: receiptKey,
+                      key: normalReceiptKey,
                       child: getThermalReceiptWidget(
                         businessName: businessName,
                         address: address,
@@ -138,36 +339,54 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                       ),
                     ),
                     const SizedBox(height: 20),
+                    if (invoice.kotItems!.isNotEmpty)
+                      RepaintBoundary(
+                        key: kotReceiptKey,
+                        child: getThermalReceiptKOTWidget(
+                          businessName: businessName,
+                          address: address,
+                          gst: gst,
+                          items: kotItems,
+                          paidBy: paymentMethod,
+                          tamilTagline: '',
+                          phone: phone,
+                          subtotal: subTotal,
+                          tax: taxAmount,
+                          total: total,
+                          orderNumber: orderNumber,
+                          tableName: tableName,
+                          waiterName: waiterName,
+                          orderType: orderType,
+                          date: date,
+                          status: orderStatus,
+                        ),
+                      ),
+
+                    const SizedBox(height: 20),
 
                     // Action Buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        if (invoice.kotItems!.isNotEmpty)
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              _showPrinterIpDialog(context);
+                            },
+                            icon: const Icon(Icons.print),
+                            label: const Text("KOT Print"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: greenColor,
+                              foregroundColor: whiteColor,
+                            ),
+                          ),
+                        horizontalSpace(width: 10),
                         ElevatedButton.icon(
                           onPressed: () async {
-                            try {
-                              await Future.delayed(
-                                  const Duration(milliseconds: 300));
-                              await WidgetsBinding.instance.endOfFrame;
-                              Uint8List? imageBytes =
-                                  await captureMonochromeReceipt(receiptKey);
-
-                              if (imageBytes != null) {
-                                await printerService.init();
-                                await printerService.printBitmap(imageBytes);
-                                // await Future.delayed(
-                                //     const Duration(seconds: 2));
-                                await printerService.fullCut();
-                                Navigator.pop(context);
-                              }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Print failed: $e")),
-                              );
-                            }
+                            await _printBillToIminOnly(context);
                           },
                           icon: const Icon(Icons.print),
-                          label: const Text("Print"),
+                          label: const Text("Print Bills"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: greenColor,
                             foregroundColor: whiteColor,
