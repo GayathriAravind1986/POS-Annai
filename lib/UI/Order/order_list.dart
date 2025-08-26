@@ -88,8 +88,8 @@ class OrderViewViewState extends State<OrderViewView> {
   String? selectOperator;
   bool view = false;
   final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  final yesterdayDate = DateFormat('yyyy-MM-dd')
-      .format(DateTime.now().subtract(Duration(days: 1)));
+  // final yesterdayDate = DateFormat('yyyy-MM-dd')
+  //     .format(DateTime.now().subtract(Duration(days: 1)));
   String? fromDate;
   String? type;
   dynamic operatorId;
@@ -109,7 +109,7 @@ class OrderViewViewState extends State<OrderViewView> {
       selectOperator = null;
     });
     context.read<OrderTodayBloc>().add(
-          OrderTodayList(yesterdayDate, todayDate, "", "", ""),
+          OrderTodayList(todayDate, todayDate, "", "", ""),
         );
     debugPrint(
         "RefreshOrders called for type: ${widget.type} - using shared data");
@@ -362,9 +362,7 @@ class OrderViewViewState extends State<OrderViewView> {
 
     return BlocBuilder<OrderTodayBloc, dynamic>(
       buildWhen: ((previous, current) {
-        // Only listen to specific events, not order list updates (handled by parent)
         if (current is GetOrderListTodayModel) {
-          // Don't rebuild on order list updates - parent handles this
           getOrderListTodayModel = current;
           return false;
         }
@@ -376,7 +374,9 @@ class OrderViewViewState extends State<OrderViewView> {
           }
           if (deleteOrderModel.success == true) {
             showToast("${deleteOrderModel.message}", context, color: true);
-            // Don't trigger refresh here, parent will handle it
+            context
+                .read<OrderTodayBloc>()
+                .add(OrderTodayList(todayDate, todayDate, "", "", ""));
           } else {
             showToast("${deleteOrderModel.message}", context, color: false);
           }
@@ -418,7 +418,11 @@ class OrderViewViewState extends State<OrderViewView> {
                                 )),
                         (Route<dynamic> route) => false)
                     .then((value) {
-                  if (value == true) {}
+                  if (value == true) {
+                    context
+                        .read<OrderTodayBloc>()
+                        .add(OrderTodayList(todayDate, todayDate, "", "", ""));
+                  }
                 });
               }
             }

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:intl/intl.dart';
+import 'package:simple/Alertbox/snackBarAlert.dart';
 import 'package:simple/ModelClass/Order/Get_view_order_model.dart';
 import 'package:simple/Reusable/color.dart';
 import 'package:simple/Reusable/space.dart';
@@ -125,6 +126,8 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
 
       if (imageBytes != null) {
         await printerServiceThermal.init();
+        await printerServiceThermal.printBitmap(imageBytes);
+        await printerServiceThermal.fullCut();
         final printer = PrinterNetworkManager(printerIp);
         final result = await printer.connect();
 
@@ -144,7 +147,8 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
             await printer.printTicket(bytes);
           }
 
-          await printer.disconnect();
+          PosPrintResult result = await printer.disconnect();
+          showToast(result.msg, context, color: false);
 
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -201,11 +205,12 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
       await Future.delayed(const Duration(milliseconds: 300));
       await WidgetsBinding.instance.endOfFrame;
 
-      Uint8List? imageBytes = await captureMonochromeReceipt(normalReceiptKey);
+      Uint8List? imageBytesImin =
+          await captureMonochromeReceipt(normalReceiptKey);
 
-      if (imageBytes != null) {
+      if (imageBytesImin != null) {
         await printerService.init();
-        await printerService.printBitmap(imageBytes);
+        await printerService.printBitmap(imageBytesImin);
         await printerService.fullCut();
 
         Navigator.of(context).pop();

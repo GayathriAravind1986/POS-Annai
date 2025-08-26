@@ -65,8 +65,8 @@ class OrderTabViewViewState extends State<OrderTabViewView>
   bool tableLoad = false;
   bool isLoadingOrders = false;
   final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  final yesterdayDate = DateFormat('yyyy-MM-dd')
-      .format(DateTime.now().subtract(Duration(days: 1)));
+  // final yesterdayDate = DateFormat('yyyy-MM-dd')
+  //     .format(DateTime.now().subtract(Duration(days: 1)));
   String? fromDate;
 
   final List<GlobalKey<OrderViewViewState>> _tabKeys =
@@ -109,8 +109,8 @@ class OrderTabViewViewState extends State<OrderTabViewView>
       isLoadingOrders = true;
     });
     context.read<OrderTodayBloc>().add(
-          OrderTodayList(yesterdayDate, todayDate, tableId ?? "",
-              waiterId ?? "", userId ?? ""),
+          OrderTodayList(todayDate, todayDate, tableId ?? "", waiterId ?? "",
+              userId ?? ""),
         );
     context.read<OrderTodayBloc>().add(TableDine());
     context.read<OrderTodayBloc>().add(WaiterDine());
@@ -126,8 +126,8 @@ class OrderTabViewViewState extends State<OrderTabViewView>
     debugPrint("refreshTab");
     debugPrint("Operator selectId:$userId");
     context.read<OrderTodayBloc>().add(
-          OrderTodayList(yesterdayDate, todayDate, tableId ?? "",
-              waiterId ?? "", userId ?? ""),
+          OrderTodayList(todayDate, todayDate, tableId ?? "", waiterId ?? "",
+              userId ?? ""),
         );
     refreshNotifier.value = !refreshNotifier.value;
   }
@@ -147,8 +147,8 @@ class OrderTabViewViewState extends State<OrderTabViewView>
     context.read<OrderTodayBloc>().add(WaiterDine());
     context.read<OrderTodayBloc>().add(UserDetails());
     context.read<OrderTodayBloc>().add(
-          OrderTodayList(yesterdayDate, todayDate, tableId ?? "",
-              waiterId ?? "", userId ?? ""),
+          OrderTodayList(todayDate, todayDate, tableId ?? "", waiterId ?? "",
+              userId ?? ""),
         );
   }
 

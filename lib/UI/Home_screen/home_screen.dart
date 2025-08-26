@@ -222,6 +222,15 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
     return DateFormat('dd/MM/yyyy hh:mm a').format(dateTime);
   }
 
+  Future<void> _ensureIminServiceReady() async {
+    try {
+      // Try to reinitialize the service to ensure it's pointing to IMIN
+      await printerService.init();
+    } catch (e) {
+      debugPrint("Error reinitializing IMIN service: $e");
+    }
+  }
+
   Future<void> _showPrinterIpDialog(BuildContext context) async {
     await showDialog(
       context: context,
@@ -262,8 +271,19 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   Navigator.pop(ctx);
-                  await _startKOTPrintingThermalOnly(
-                      context, ipController.text.trim());
+                  if (ipController.text.isNotEmpty) {
+                    _startKOTPrintingThermalOnly(
+                      context,
+                      ipController.text.trim(),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please enter Thermal Printer IP!"),
+                        backgroundColor: redColor,
+                      ),
+                    );
+                  }
                 }
               },
               child: const Text("Connect & Print KOT"),
@@ -300,6 +320,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
       if (imageBytes != null) {
         await printerServiceThermal.init();
+        await printerServiceThermal.printBitmap(imageBytes);
+        await printerServiceThermal.fullCut();
         final printer = PrinterNetworkManager(printerIp);
         final result = await printer.connect();
 
@@ -353,6 +375,20 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
     }
   }
 
+  Future<bool> isIminDevice() async {
+    final deviceInfo = DeviceInfoPlugin();
+    final androidInfo = await deviceInfo.androidInfo;
+    final manufacturer = (androidInfo.manufacturer ?? "").toLowerCase();
+    final model = (androidInfo.model ?? "").toLowerCase();
+
+    // Many IMIN devices report different manufacturer strings
+    if (manufacturer.contains("imin") || model.contains("imin")) {
+      return true;
+    }
+    return false;
+  }
+
+
   Future<void> _printBillToIminOnly(BuildContext context) async {
     try {
       showDialog(
@@ -373,28 +409,29 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
         ),
       );
 
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 500));
       await WidgetsBinding.instance.endOfFrame;
 
       Uint8List? imageBytes = await captureMonochromeReceipt(normalReceiptKey);
 
-      if (imageBytes != null) {
-        await printerService.init();
-        await printerService.printBitmap(imageBytes);
-        await printerService.fullCut();
 
-        Navigator.of(context).pop();
+        if (imageBytes != null) {
+          await printerService.init();
+          await printerService.printBitmap(imageBytes);
+          await printerService.fullCut();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Bill printed successfully to IMIN device!"),
-            backgroundColor: greenColor,
-          ),
-        );
-      } else {
-        Navigator.of(context).pop();
-        throw Exception("Failed to capture bill receipt image");
-      }
+          Navigator.of(context).pop();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Bill printed successfully to IMIN device!"),
+              backgroundColor: greenColor,
+            ),
+          );
+        } else {
+          throw Exception(
+              "Image capture failed: normalReceiptKey returned null");
+        }
     } catch (e) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -534,7 +571,12 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                       horizontalSpace(width: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
-                          await _printBillToIminOnly(context);
+
+                            WidgetsBinding.instance.addPostFrameCallback((_) async {
+                              await _ensureIminServiceReady();
+                              await _printBillToIminOnly(context);
+                            });
+
                         },
                         icon: const Icon(Icons.print),
                         label: const Text("Print Bill"),
@@ -694,7 +736,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                       horizontalSpace(width: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
-                          await _printBillToIminOnly(context);
+                            WidgetsBinding.instance.addPostFrameCallback((_) async {
+                              await _ensureIminServiceReady();
+                              await _printBillToIminOnly(context);
+                            });
                         },
                         icon: const Icon(Icons.print),
                         label: const Text("Print Bills"),
