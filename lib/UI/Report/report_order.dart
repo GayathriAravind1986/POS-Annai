@@ -8,6 +8,7 @@ import 'package:simple/Alertbox/snackBarAlert.dart';
 import 'package:simple/Bloc/Report/report_bloc.dart';
 import 'package:simple/ModelClass/Report/Get_report_model.dart';
 import 'package:simple/ModelClass/Table/Get_table_model.dart';
+import 'package:simple/ModelClass/User/getUserModel.dart';
 import 'package:simple/ModelClass/Waiter/getWaiterModel.dart';
 import 'package:simple/Reusable/color.dart';
 import 'package:simple/Reusable/space.dart';
@@ -48,10 +49,13 @@ class ReportViewViewState extends State<ReportViewView> {
   GetReportModel getReportModel = GetReportModel();
   GetTableModel getTableModel = GetTableModel();
   GetWaiterModel getWaiterModel = GetWaiterModel();
+  GetUserModel getUserModel = GetUserModel();
   dynamic selectedValue;
   dynamic selectedValueWaiter;
+  dynamic selectedValueUser;
   dynamic tableId;
   dynamic waiterId;
+  dynamic userId;
   bool tableLoad = false;
   String? errorMessage;
   bool reportLoad = false;
@@ -115,7 +119,7 @@ class ReportViewViewState extends State<ReportViewView> {
 
           context.read<ReportTodayBloc>().add(
                 ReportTodayList(formattedFromDate, formattedToDate,
-                    tableId ?? "", waiterId ?? ""),
+                    tableId ?? "", waiterId ?? "", userId ?? ""),
               );
         } else if (_fromDate != null && _toDate == null) {
           String formattedFromDate =
@@ -124,7 +128,7 @@ class ReportViewViewState extends State<ReportViewView> {
 
           context.read<ReportTodayBloc>().add(
                 ReportTodayList(formattedFromDate, formattedToDate,
-                    tableId ?? "", waiterId ?? ""),
+                    tableId ?? "", waiterId ?? "", userId ?? ""),
               );
         }
       });
@@ -134,8 +138,8 @@ class ReportViewViewState extends State<ReportViewView> {
   void refreshReport() {
     if (!mounted || !context.mounted) return;
     context.read<ReportTodayBloc>().add(
-          ReportTodayList(
-              todayApiDate, todayApiDate, tableId ?? "", waiterId ?? ""),
+          ReportTodayList(todayApiDate, todayApiDate, tableId ?? "",
+              waiterId ?? "", userId ?? ""),
         );
     setState(() {
       reportLoad = true;
@@ -147,6 +151,7 @@ class ReportViewViewState extends State<ReportViewView> {
     super.initState();
     context.read<ReportTodayBloc>().add(TableDine());
     context.read<ReportTodayBloc>().add(WaiterDine());
+    context.read<ReportTodayBloc>().add(UserDetails());
     if (widget.hasRefreshedReport == true) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
@@ -163,8 +168,8 @@ class ReportViewViewState extends State<ReportViewView> {
         toDateController.text = todayDisplayDate;
       });
       context.read<ReportTodayBloc>().add(
-            ReportTodayList(
-                todayApiDate, todayApiDate, tableId ?? "", waiterId ?? ""),
+            ReportTodayList(todayApiDate, todayApiDate, tableId ?? "",
+                waiterId ?? "", userId ?? ""),
           );
     }
   }
@@ -173,15 +178,18 @@ class ReportViewViewState extends State<ReportViewView> {
     setState(() {
       selectedValue = null;
       selectedValueWaiter = null;
+      selectedValueUser = null;
       tableId = null;
       waiterId = null;
+      userId = null;
     });
     context.read<ReportTodayBloc>().add(
-          ReportTodayList(
-              todayApiDate, todayApiDate, tableId ?? "", waiterId ?? ""),
+          ReportTodayList(todayApiDate, todayApiDate, tableId ?? "",
+              waiterId ?? "", userId ?? ""),
         );
     context.read<ReportTodayBloc>().add(TableDine());
     context.read<ReportTodayBloc>().add(WaiterDine());
+    context.read<ReportTodayBloc>().add(UserDetails());
     widget.reportKey?.currentState?.refreshReport();
   }
 
@@ -259,7 +267,8 @@ class ReportViewViewState extends State<ReportViewView> {
                                                   todayApiDate,
                                                   todayApiDate,
                                                   tableId ?? "",
-                                                  waiterId ?? ""),
+                                                  waiterId ?? "",
+                                                  userId ?? ""),
                                             );
                                       }
                                     });
@@ -305,7 +314,8 @@ class ReportViewViewState extends State<ReportViewView> {
                                                   todayApiDate,
                                                   todayApiDate,
                                                   tableId ?? "",
-                                                  waiterId ?? ""),
+                                                  waiterId ?? "",
+                                                  userId ?? ""),
                                             );
                                       }
                                     });
@@ -364,8 +374,12 @@ class ReportViewViewState extends State<ReportViewView> {
                                   ?.firstWhere((item) => item.name == newValue);
                               tableId = selectedItem?.id.toString();
                               context.read<ReportTodayBloc>().add(
-                                    ReportTodayList(todayApiDate, todayApiDate,
-                                        tableId ?? "", waiterId ?? ""),
+                                    ReportTodayList(
+                                        todayApiDate,
+                                        todayApiDate,
+                                        tableId ?? "",
+                                        waiterId ?? "",
+                                        userId ?? ""),
                                   );
                             });
                           }
@@ -422,14 +436,82 @@ class ReportViewViewState extends State<ReportViewView> {
                                   ?.firstWhere((item) => item.name == newValue);
                               waiterId = selectedItem?.id.toString();
                               context.read<ReportTodayBloc>().add(
-                                    ReportTodayList(todayApiDate, todayApiDate,
-                                        tableId ?? "", waiterId ?? ""),
+                                    ReportTodayList(
+                                        todayApiDate,
+                                        todayApiDate,
+                                        tableId ?? "",
+                                        waiterId ?? "",
+                                        userId ?? ""),
                                   );
                             });
                           }
                         },
                         hint: Text(
                           '-- Select Waiter --',
+                          style: MyTextStyle.f14(
+                            blackColor,
+                            weight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: DropdownButtonFormField<String>(
+                        value: (getUserModel.data?.any(
+                                    (item) => item.name == selectedValueUser) ??
+                                false)
+                            ? selectedValueUser
+                            : null,
+                        icon: const Icon(
+                          Icons.arrow_drop_down,
+                          color: appPrimaryColor,
+                        ),
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: appPrimaryColor,
+                            ),
+                          ),
+                        ),
+                        items: getUserModel.data?.map((item) {
+                          return DropdownMenuItem<String>(
+                            value: item.name,
+                            child: Text(
+                              "${item.name}",
+                              style: MyTextStyle.f14(
+                                blackColor,
+                                weight: FontWeight.normal,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              selectedValueUser = newValue;
+                              final selectedItem = getUserModel.data
+                                  ?.firstWhere((item) => item.name == newValue);
+                              userId = selectedItem?.id.toString();
+                            });
+                            debugPrint("operatorSelectr:$userId");
+                            debugPrint("operatorSelectr:$selectedValueUser");
+                            context.read<ReportTodayBloc>().add(
+                                  ReportTodayList(
+                                      todayApiDate,
+                                      todayApiDate,
+                                      tableId ?? "",
+                                      waiterId ?? "",
+                                      userId ?? ""),
+                                );
+                          }
+                        },
+                        hint: Text(
+                          '-- Select Operator --',
                           style: MyTextStyle.f14(
                             blackColor,
                             weight: FontWeight.normal,
@@ -676,6 +758,24 @@ class ReportViewViewState extends State<ReportViewView> {
               tableLoad = false;
             });
             showToast("No Waiter found", context, color: false);
+          }
+          return true;
+        }
+        if (current is GetUserModel) {
+          getUserModel = current;
+          if (getUserModel.errorResponse?.isUnauthorized == true) {
+            _handle401Error();
+            return true;
+          }
+          if (getUserModel.success == true) {
+            setState(() {
+              tableLoad = false;
+            });
+          } else {
+            setState(() {
+              tableLoad = false;
+            });
+            showToast("No Operator found", context, color: false);
           }
           return true;
         }

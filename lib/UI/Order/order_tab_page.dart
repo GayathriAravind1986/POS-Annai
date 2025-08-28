@@ -16,10 +16,12 @@ import 'package:simple/UI/Order/order_list.dart';
 class OrdersTabbedScreen extends StatelessWidget {
   final VoidCallback? onRefresh;
   final GlobalKey<OrderViewViewState>? orderAllKey;
+  final GlobalKey<OrderTabViewViewState>? orderResetKey;
   const OrdersTabbedScreen({
     super.key,
     this.onRefresh,
     this.orderAllKey,
+    this.orderResetKey,
   });
 
   @override
@@ -28,6 +30,7 @@ class OrdersTabbedScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => OrderTodayBloc(),
       child: OrderTabViewView(
+        key: orderResetKey,
         onRefresh: onRefresh,
         orderAllKey: orderAllKey,
       ),
@@ -38,11 +41,7 @@ class OrdersTabbedScreen extends StatelessWidget {
 class OrderTabViewView extends StatefulWidget {
   final VoidCallback? onRefresh;
   final GlobalKey<OrderViewViewState>? orderAllKey;
-  const OrderTabViewView({
-    super.key,
-    this.onRefresh,
-    this.orderAllKey,
-  });
+  const OrderTabViewView({super.key, this.onRefresh, this.orderAllKey});
 
   @override
   OrderTabViewViewState createState() => OrderTabViewViewState();
@@ -62,16 +61,25 @@ class OrderTabViewViewState extends State<OrderTabViewView>
   dynamic tableId;
   dynamic waiterId;
   dynamic userId;
+  dynamic operatorId;
   bool tableLoad = false;
   bool isLoadingOrders = false;
   final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  // final yesterdayDate = DateFormat('yyyy-MM-dd')
-  //     .format(DateTime.now().subtract(Duration(days: 1)));
   String? fromDate;
 
-  final List<GlobalKey<OrderViewViewState>> _tabKeys =
-      List.generate(6, (index) => GlobalKey<OrderViewViewState>());
-  final ValueNotifier<bool> refreshNotifier = ValueNotifier<bool>(false);
+  final List<GlobalKey<OrderViewViewState>> _tabKeys = List.generate(
+    6,
+    (index) => GlobalKey<OrderViewViewState>(),
+  );
+
+  Future<void> getOperatorId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      operatorId = prefs.getString("userId");
+    });
+    debugPrint("operatorId: $operatorId");
+  }
+
   @override
   void initState() {
     super.initState();
@@ -95,9 +103,7 @@ class OrderTabViewViewState extends State<OrderTabViewView>
     });
   }
 
-  void _loadInitialData() {
-    if (isLoadingOrders) return; // Prevent multiple calls
-
+  void resetSelections() {
     setState(() {
       selectedValue = null;
       selectedValueWaiter = null;
@@ -109,8 +115,26 @@ class OrderTabViewViewState extends State<OrderTabViewView>
       isLoadingOrders = true;
     });
     context.read<OrderTodayBloc>().add(
-          OrderTodayList(todayDate, todayDate, tableId ?? "", waiterId ?? "",
-              userId ?? ""),
+          OrderTodayList(todayDate, todayDate, "", "", ""),
+        );
+  }
+
+  void _loadInitialData() {
+    if (isLoadingOrders) return;
+    debugPrint("tableIntialLoad:$selectedValue");
+    getOperatorId();
+    setState(() {
+      selectedValue = null;
+      selectedValueWaiter = null;
+      selectedValueUser = null;
+      tableId = null;
+      waiterId = null;
+      userId = null;
+      hasRefreshedOrder = false;
+      isLoadingOrders = true;
+    });
+    context.read<OrderTodayBloc>().add(
+          OrderTodayList(todayDate, todayDate, "", "", ""),
         );
     context.read<OrderTodayBloc>().add(TableDine());
     context.read<OrderTodayBloc>().add(WaiterDine());
@@ -124,12 +148,15 @@ class OrderTabViewViewState extends State<OrderTabViewView>
       isLoadingOrders = true;
     });
     debugPrint("refreshTab");
-    debugPrint("Operator selectId:$userId");
     context.read<OrderTodayBloc>().add(
-          OrderTodayList(todayDate, todayDate, tableId ?? "", waiterId ?? "",
-              userId ?? ""),
+          OrderTodayList(
+            todayDate,
+            todayDate,
+            tableId ?? "",
+            waiterId ?? "",
+            userId ?? "",
+          ),
         );
-    refreshNotifier.value = !refreshNotifier.value;
   }
 
   void _refreshData() {
@@ -143,12 +170,18 @@ class OrderTabViewViewState extends State<OrderTabViewView>
       hasRefreshedOrder = false;
       isLoadingOrders = true; // Set loading state
     });
+    _tabController.animateTo(0);
     context.read<OrderTodayBloc>().add(TableDine());
     context.read<OrderTodayBloc>().add(WaiterDine());
     context.read<OrderTodayBloc>().add(UserDetails());
     context.read<OrderTodayBloc>().add(
-          OrderTodayList(todayDate, todayDate, tableId ?? "", waiterId ?? "",
-              userId ?? ""),
+          OrderTodayList(
+            todayDate,
+            todayDate,
+            tableId ?? "",
+            waiterId ?? "",
+            userId ?? "",
+          ),
         );
   }
 
@@ -159,7 +192,6 @@ class OrderTabViewViewState extends State<OrderTabViewView>
   @override
   void dispose() {
     _tabController.dispose();
-    refreshNotifier.dispose();
     super.dispose();
   }
 
@@ -244,8 +276,9 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                   child: Container(
                     margin: const EdgeInsets.all(10),
                     child: DropdownButtonFormField<String>(
-                      value: (getTableModel.data
-                                  ?.any((item) => item.name == selectedValue) ??
+                      value: (getTableModel.data?.any(
+                                (item) => item.name == selectedValue,
+                              ) ??
                               false)
                           ? selectedValue
                           : null,
@@ -257,9 +290,7 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: appPrimaryColor,
-                          ),
+                          borderSide: const BorderSide(color: appPrimaryColor),
                         ),
                       ),
                       items: getTableModel.data?.map((item) {
@@ -278,8 +309,9 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                         if (newValue != null) {
                           setState(() {
                             selectedValue = newValue;
-                            final selectedItem = getTableModel.data
-                                ?.firstWhere((item) => item.name == newValue);
+                            final selectedItem = getTableModel.data?.firstWhere(
+                              (item) => item.name == newValue,
+                            );
                             tableId = selectedItem?.id.toString();
                           });
                           _onFilterChanged();
@@ -300,7 +332,8 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                     margin: const EdgeInsets.all(10),
                     child: DropdownButtonFormField<String>(
                       value: (getWaiterModel.data?.any(
-                                  (item) => item.name == selectedValueWaiter) ??
+                                (item) => item.name == selectedValueWaiter,
+                              ) ??
                               false)
                           ? selectedValueWaiter
                           : null,
@@ -312,9 +345,7 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: appPrimaryColor,
-                          ),
+                          borderSide: const BorderSide(color: appPrimaryColor),
                         ),
                       ),
                       items: getWaiterModel.data?.map((item) {
@@ -355,7 +386,8 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                     margin: const EdgeInsets.all(10),
                     child: DropdownButtonFormField<String>(
                       value: (getUserModel.data?.any(
-                                  (item) => item.name == selectedValueUser) ??
+                                (item) => item.name == selectedValueUser,
+                              ) ??
                               false)
                           ? selectedValueUser
                           : null,
@@ -367,9 +399,7 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: appPrimaryColor,
-                          ),
+                          borderSide: const BorderSide(color: appPrimaryColor),
                         ),
                       ),
                       items: getUserModel.data?.map((item) {
@@ -388,12 +418,12 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                         if (newValue != null) {
                           setState(() {
                             selectedValueUser = newValue;
-                            final selectedItem = getUserModel.data
-                                ?.firstWhere((item) => item.name == newValue);
+                            final selectedItem = getUserModel.data?.firstWhere(
+                              (item) => item.name == newValue,
+                            );
                             userId = selectedItem?.id.toString();
                           });
                           debugPrint("operatorSelectr:$userId");
-                          debugPrint("operatorSelectr:$selectedValueUser");
                           _onFilterChanged();
                         }
                       },
@@ -433,9 +463,9 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                     selectedTableName: tableId,
                     selectedWaiterName: waiterId,
                     selectOperator: userId,
+                    operatorShared: operatorId,
                     sharedOrderData: getOrderListTodayModel,
                     isLoading: isLoadingOrders,
-                    refreshNotifier: refreshNotifier,
                   ),
                   OrderViewView(
                     key: _tabKeys[1],
@@ -443,9 +473,9 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                     selectedTableName: tableId,
                     selectedWaiterName: waiterId,
                     selectOperator: userId,
+                    operatorShared: operatorId,
                     sharedOrderData: getOrderListTodayModel,
                     isLoading: isLoadingOrders,
-                    refreshNotifier: refreshNotifier,
                   ),
                   OrderViewView(
                     key: _tabKeys[2],
@@ -453,9 +483,9 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                     selectedTableName: tableId,
                     selectedWaiterName: waiterId,
                     selectOperator: userId,
+                    operatorShared: operatorId,
                     sharedOrderData: getOrderListTodayModel,
                     isLoading: isLoadingOrders,
-                    refreshNotifier: refreshNotifier,
                   ),
                   OrderViewView(
                     key: _tabKeys[3],
@@ -463,9 +493,9 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                     selectedTableName: tableId,
                     selectedWaiterName: waiterId,
                     selectOperator: userId,
+                    operatorShared: operatorId,
                     sharedOrderData: getOrderListTodayModel,
                     isLoading: isLoadingOrders,
-                    refreshNotifier: refreshNotifier,
                   ),
                   OrderViewView(
                     key: _tabKeys[4],
@@ -473,9 +503,9 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                     selectedTableName: tableId,
                     selectedWaiterName: waiterId,
                     selectOperator: userId,
+                    operatorShared: operatorId,
                     sharedOrderData: getOrderListTodayModel,
                     isLoading: isLoadingOrders,
-                    refreshNotifier: refreshNotifier,
                   ),
                   OrderViewView(
                     key: _tabKeys[5],
@@ -483,9 +513,9 @@ class OrderTabViewViewState extends State<OrderTabViewView>
                     selectedTableName: tableId,
                     selectedWaiterName: waiterId,
                     selectOperator: userId,
+                    operatorShared: operatorId,
                     sharedOrderData: getOrderListTodayModel,
                     isLoading: isLoadingOrders,
-                    refreshNotifier: refreshNotifier,
                   ),
                 ],
               ),
@@ -504,7 +534,7 @@ class OrderTabViewViewState extends State<OrderTabViewView>
             return true;
           }
           setState(() {
-            isLoadingOrders = false; // Always set loading to false
+            isLoadingOrders = false;
             tableLoad = false;
           });
           return true;

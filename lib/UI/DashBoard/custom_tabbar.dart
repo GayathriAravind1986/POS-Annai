@@ -58,6 +58,8 @@ class _DashBoardState extends State<DashBoard> {
       GlobalKey<ReportViewViewState>();
   final GlobalKey<StockViewViewState> stockKey =
       GlobalKey<StockViewViewState>();
+  final GlobalKey<OrderTabViewViewState> orderTabKey =
+      GlobalKey<OrderTabViewViewState>();
   int selectedIndex = 0;
   bool orderLoad = false;
   bool hasRefreshedOrder = false;
@@ -69,6 +71,15 @@ class _DashBoardState extends State<DashBoard> {
     super.initState();
     if (widget.selectTab != null) {
       selectedIndex = widget.selectTab!;
+    }
+  }
+
+  void _resetOrderTab() {
+    final orderTabState = orderTabKey.currentState;
+    if (orderTabState != null) {
+      orderTabState.resetSelections();
+    } else {
+      debugPrint("orderTabState is NULL — check if key is assigned properly");
     }
   }
 
@@ -129,6 +140,7 @@ class _DashBoardState extends State<DashBoard> {
               hasRefreshedStock = false;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _refreshOrders();
+                _resetOrderTab();
               });
             }
             if (index == 2 && !hasRefreshedReport) {
@@ -176,6 +188,7 @@ class _DashBoardState extends State<DashBoard> {
             OrdersTabbedScreen(
               key: PageStorageKey('OrdersTabbedScreen'),
               orderAllKey: orderAllTabKey,
+              orderResetKey: orderTabKey,
             ),
             hasRefreshedReport == true
                 ? BlocProvider(

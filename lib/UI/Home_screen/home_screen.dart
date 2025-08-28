@@ -319,9 +319,6 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
       Uint8List? imageBytes = await captureMonochromeKOTReceipt(kotReceiptKey);
 
       if (imageBytes != null) {
-        await printerServiceThermal.init();
-        await printerServiceThermal.printBitmap(imageBytes);
-        await printerServiceThermal.fullCut();
         final printer = PrinterNetworkManager(printerIp);
         final result = await printer.connect();
 

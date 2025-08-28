@@ -19,59 +19,59 @@ import 'package:simple/UI/Order/pop_view_order.dart';
 class OrderView extends StatelessWidget {
   final GlobalKey<OrderViewViewState>? orderAllKey;
   final String type;
-  final String? selectedTableName;
-  final String? selectedWaiterName;
-  final String? selectOperator;
+  String? selectedTableName;
+  String? selectedWaiterName;
+  String? selectOperator;
+  String? operatorShared;
   final GetOrderListTodayModel? sharedOrderData;
   final bool isLoading;
-  final ValueNotifier<bool>? refreshNotifier;
 
-  const OrderView({
+  OrderView({
     super.key,
     required this.type,
     this.orderAllKey,
     this.selectedTableName,
     this.selectedWaiterName,
+    this.selectOperator,
+    this.operatorShared,
     this.sharedOrderData,
     this.isLoading = false,
-    this.selectOperator,
-    this.refreshNotifier,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Remove BlocProvider from here since it's now provided by parent
     return OrderViewView(
       key: orderAllKey,
       type: type,
       selectedTableName: selectedTableName,
       selectedWaiterName: selectedWaiterName,
+      selectOperator: selectOperator,
+      operatorShared: operatorShared,
       sharedOrderData: sharedOrderData,
       isLoading: isLoading,
-      selectOperator: selectOperator,
-      refreshNotifier: refreshNotifier,
     );
   }
 }
 
 class OrderViewView extends StatefulWidget {
   final String type;
-  final String? selectedTableName;
-  final String? selectedWaiterName;
-  final String? selectOperator;
+  String? selectedTableName;
+  String? selectedWaiterName;
+  String? selectOperator;
+  String? operatorShared;
+
   final GetOrderListTodayModel? sharedOrderData;
   final bool isLoading;
-  final ValueNotifier<bool>? refreshNotifier;
 
-  const OrderViewView({
+  OrderViewView({
     super.key,
     required this.type,
     this.selectedTableName,
     this.selectedWaiterName,
+    this.selectOperator,
+    this.operatorShared,
     this.sharedOrderData,
     this.isLoading = false,
-    this.selectOperator,
-    this.refreshNotifier,
   });
 
   @override
@@ -83,50 +83,26 @@ class OrderViewViewState extends State<OrderViewView> {
   DeleteOrderModel deleteOrderModel = DeleteOrderModel();
   GetViewOrderModel getViewOrderModel = GetViewOrderModel();
   String? errorMessage;
-  String? selectedTableName;
-  String? selectedWaiterName;
-  String? selectOperator;
   bool view = false;
   final todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  // final yesterdayDate = DateFormat('yyyy-MM-dd')
-  //     .format(DateTime.now().subtract(Duration(days: 1)));
   String? fromDate;
   String? type;
-  dynamic operatorId;
-  Future<void> getOperatorId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      operatorId = prefs.getString("userId");
-    });
-    debugPrint("operatorId: $operatorId");
-  }
 
   void refreshOrders() {
     if (!mounted || !context.mounted) return;
-    setState(() {
-      selectedTableName = null;
-      selectedWaiterName = null;
-      selectOperator = null;
-    });
     context.read<OrderTodayBloc>().add(
-          OrderTodayList(todayDate, todayDate, "", "", ""),
+          OrderTodayList(todayDate, todayDate, widget.selectedTableName ?? "",
+              widget.selectedWaiterName ?? "", widget.selectOperator ?? ""),
         );
-    debugPrint(
-        "RefreshOrders called for type: ${widget.type} - using shared data");
-    debugPrint("RefreshOrders called ${widget.selectOperator}");
   }
 
   @override
   void initState() {
     super.initState();
-    getOperatorId();
-    selectedTableName = widget.selectedTableName;
-    selectedWaiterName = widget.selectedWaiterName;
-    selectOperator = widget.selectOperator;
+
     if (widget.sharedOrderData != null) {
       getOrderListTodayModel = widget.sharedOrderData!;
     }
-    widget.refreshNotifier?.addListener(_onRefreshNotified);
   }
 
   @override
@@ -139,13 +115,8 @@ class OrderViewViewState extends State<OrderViewView> {
     }
   }
 
-  void _onRefreshNotified() {
-    debugPrint("Refresh notification received for ${widget.type}");
-  }
-
   @override
   void dispose() {
-    widget.refreshNotifier?.removeListener(_onRefreshNotified);
     super.dispose();
   }
 
@@ -304,21 +275,24 @@ class OrderViewViewState extends State<OrderViewView> {
                                         },
                                       ),
                                       SizedBox(width: 4),
-                                      // if (operatorId == selectOperator)
-                                      IconButton(
-                                        padding: EdgeInsets.zero,
-                                        constraints: BoxConstraints(),
-                                        icon: Icon(Icons.edit,
-                                            color: appPrimaryColor, size: 20),
-                                        onPressed: () {
-                                          setState(() {
-                                            view = false;
-                                          });
-                                          context
-                                              .read<OrderTodayBloc>()
-                                              .add(ViewOrder(order.id));
-                                        },
-                                      ),
+                                      if (widget.operatorShared ==
+                                              widget.selectOperator ||
+                                          widget.selectOperator == null ||
+                                          widget.selectOperator == "")
+                                        IconButton(
+                                          padding: EdgeInsets.zero,
+                                          constraints: BoxConstraints(),
+                                          icon: Icon(Icons.edit,
+                                              color: appPrimaryColor, size: 20),
+                                          onPressed: () {
+                                            setState(() {
+                                              view = false;
+                                            });
+                                            context
+                                                .read<OrderTodayBloc>()
+                                                .add(ViewOrder(order.id));
+                                          },
+                                        ),
                                       SizedBox(width: 4),
                                       IconButton(
                                         padding: EdgeInsets.zero,
@@ -364,7 +338,7 @@ class OrderViewViewState extends State<OrderViewView> {
       buildWhen: ((previous, current) {
         if (current is GetOrderListTodayModel) {
           getOrderListTodayModel = current;
-          return false;
+          return true;
         }
         if (current is DeleteOrderModel) {
           deleteOrderModel = current;

@@ -102,6 +102,8 @@ showLogoutDialog(BuildContext context) {
                       SharedPreferences sharedPreference =
                           await SharedPreferences.getInstance();
                       await sharedPreference.remove('token');
+                      await sharedPreference.remove('role');
+                      await sharedPreference.remove('userId');
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
