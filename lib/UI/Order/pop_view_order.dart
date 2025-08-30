@@ -1,21 +1,17 @@
 import 'dart:io';
-import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:intl/intl.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:simple/ModelClass/Order/Get_view_order_model.dart';
 import 'package:simple/Reusable/color.dart';
 import 'package:simple/Reusable/space.dart';
 import 'package:simple/Reusable/text_styles.dart';
-import 'package:simple/UI/Device_Helper/device_helper.dart';
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/imin_abstract.dart';
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/mock_imin_printer_chrome.dart';
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/real_device_printer.dart';
 import 'package:simple/UI/IminHelper/printer_helper.dart';
 import 'package:simple/UI/KOT_printer_helper/printer_kot_helper.dart';
-import 'package:image/image.dart' as img;
 
 class ThermalReceiptDialog extends StatefulWidget {
   final GetViewOrderModel getViewOrderModel;
