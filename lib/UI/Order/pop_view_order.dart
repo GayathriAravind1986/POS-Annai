@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
+import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:simple/ModelClass/Order/Get_view_order_model.dart';
 import 'package:simple/Reusable/color.dart';
 import 'package:simple/Reusable/space.dart';
@@ -23,8 +25,8 @@ class ThermalReceiptDialog extends StatefulWidget {
 }
 
 class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
-  IPrinterService? printerService;
-  IPrinterService? printerServiceThermal;
+  late IPrinterService printerService;
+  late IPrinterService printerServiceThermal;
   GlobalKey normalReceiptKey = GlobalKey();
   GlobalKey kotReceiptKey = GlobalKey();
   final TextEditingController ipController = TextEditingController();
@@ -33,75 +35,25 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
   @override
   void initState() {
     super.initState();
+    ipController.text = "192.168.1.87";
     if (kIsWeb) {
       printerService = MockPrinterService();
+      printerServiceThermal = MockPrinterService();
     } else if (Platform.isAndroid) {
       printerService = RealPrinterService();
+      printerServiceThermal = RealPrinterService();
     } else {
       printerService = MockPrinterService();
+      printerServiceThermal = MockPrinterService();
     }
   }
 
-  Future<String?> getSubnet() async {
-    final info = NetworkInfo();
-    String? ip = await info.getWifiIP();
-    if (ip == null) return null;
-
-    final parts = ip.split('.');
-    if (parts.length != 4) return null;
-    return "${parts[0]}.${parts[1]}.${parts[2]}";
-  }
-
-  Future<void> discoverPrintersWithPorts(BuildContext context) async {
-    String? subnet = await getSubnet();
-    if (subnet == null) {
-      print("❌ No WiFi connection or invalid IP.");
-      return;
+  Future<void> _ensureIminServiceReady() async {
+    try {
+      await printerService.init();
+    } catch (e) {
+      debugPrint("Error reinitializing IMIN service: $e");
     }
-
-    List<int> portsToCheck = [9100, 9101, 9102, 631, 515];
-
-    for (int i = 1; i < 255; i++) {
-      String ip = "$subnet.$i";
-      for (int port in portsToCheck) {
-        try {
-          final socket = await Socket.connect(ip, port,
-              timeout: const Duration(milliseconds: 200));
-
-          print("✅ Printer found at $ip:$port");
-          ipController.text = ip;
-          portIp = port.toString();
-
-          socket.destroy();
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Printer Status'),
-              content: Text("Printer auto-detected at $ip:$port"),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    _startKOTPrintingThermalOnly(context);
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-          return;
-        } catch (_) {
-          // not a printer, skip
-        }
-      }
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("No thermal printer found in network"),
-        backgroundColor: redColor,
-      ),
-    );
   }
 
   Future<void> _showPrinterIpDialog(BuildContext context) async {
@@ -138,16 +90,32 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancel"),
+              child: const Text("Cancel",
+                  style: TextStyle(color: appPrimaryColor)),
             ),
             ElevatedButton(
               onPressed: () async {
                 if (formKey.currentState!.validate()) {
                   Navigator.pop(ctx);
-                  await _startKOTPrintingThermalOnly(context);
+                  if (ipController.text.isNotEmpty) {
+                    _startKOTPrintingThermalOnly(
+                      context,
+                      ipController.text.trim(),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please enter Thermal Printer IP!"),
+                        backgroundColor: redColor,
+                      ),
+                    );
+                  }
                 }
               },
-              child: const Text("Connect & Print KOT"),
+              child: const Text(
+                "Connect & Print KOT",
+                style: TextStyle(color: appPrimaryColor),
+              ),
             ),
           ],
         );
@@ -155,56 +123,8 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
     );
   }
 
-  Future<void> _printBillToImin(BuildContext context) async {
-    try {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => const Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(color: blueColor),
-              SizedBox(height: 16),
-              Text("Preparing IMIN printer...",
-                  style: TextStyle(color: whiteColor)),
-            ],
-          ),
-        ),
-      );
-
-      await Future.delayed(const Duration(milliseconds: 500));
-      await WidgetsBinding.instance.endOfFrame;
-
-      Uint8List? imageBytes = await captureMonochromeReceipt(normalReceiptKey);
-
-      if (imageBytes != null) {
-        await printerService!.init();
-        await printerService!.printBitmap(imageBytes);
-        await printerService!.fullCut();
-
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Bill printed successfully to IMIN device!"),
-            backgroundColor: greenColor,
-          ),
-        );
-      } else {
-        throw Exception("Image capture failed");
-      }
-    } catch (e) {
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("IMIN Print failed: $e"),
-          backgroundColor: redColor,
-        ),
-      );
-    }
-  }
-
-  Future<void> _startKOTPrintingThermalOnly(BuildContext context) async {
+  Future<void> _startKOTPrintingThermalOnly(
+      BuildContext context, String printerIp) async {
     try {
       showDialog(
         context: context,
@@ -228,57 +148,113 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
       Uint8List? imageBytes = await captureMonochromeKOTReceipt(kotReceiptKey);
 
       if (imageBytes != null) {
-        await printerServiceThermal!.init();
-        await printerServiceThermal!.printBitmap(imageBytes);
-        await printerServiceThermal!.fullCut();
-        // final printer = PrinterNetworkManager(printerIp);
-        // final result = await printer.connect();
-        //
-        // if (result == PosPrintResult.success) {
-        //   // ✅ Connected
-        //   final profile = await CapabilityProfile.load();
-        //   final generator = Generator(PaperSize.mm58, profile);
-        //
-        //   final decodedImage = img.decodeImage(imageBytes);
-        //   if (decodedImage != null) {
-        //     List<int> bytes = [];
-        //     bytes += generator.reset();
-        //     bytes +=
-        //         generator.imageRaster(decodedImage, align: PosAlign.center);
-        //     bytes += generator.feed(2);
-        //     bytes += generator.cut();
-        //     await printer.printTicket(bytes);
-        //   }
-        //
-        //   await printer.disconnect();
+        final printer = PrinterNetworkManager(printerIp);
+        final result = await printer.connect();
 
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("KOT printed to thermal printer only!"),
-            backgroundColor: greenColor,
-          ),
-        );
+        if (result == PosPrintResult.success) {
+          final profile = await CapabilityProfile.load();
+          final generator = Generator(PaperSize.mm58, profile);
+
+          final decodedImage = img.decodeImage(imageBytes);
+          if (decodedImage != null) {
+            final resizedImage = img.copyResize(
+              decodedImage,
+              width: 384, // 58mm = ~384 dots at 203 DPI
+              maintainAspect: true,
+            );
+            List<int> bytes = [];
+            bytes += generator.reset();
+            bytes += generator.imageRaster(
+              resizedImage,
+              align: PosAlign.center,
+              highDensityHorizontal: true, // Better quality
+              highDensityVertical: true,
+            );
+            bytes += generator.feed(2);
+            bytes += generator.cut();
+            await printer.printTicket(bytes);
+          }
+
+          await printer.disconnect();
+
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("KOT printed to thermal printer only!"),
+              backgroundColor: greenColor,
+            ),
+          );
+        } else {
+          // ❌ Failed to connect
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Failed to connect to printer ($result)"),
+              backgroundColor: redColor,
+            ),
+          );
+        }
       } else {
-        // ❌ Failed to connect
         Navigator.of(context).pop();
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: Text("Failed to connect to printer ($result)"),
-        //     backgroundColor: redColor,
-        //   ),
-        // );
-        //}
+        throw Exception("Failed to capture KOT receipt image");
       }
-      // else {
-      //   Navigator.of(context).pop();
-      //   throw Exception("Failed to capture KOT receipt image");
-      // }
     } catch (e) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("KOT Print failed: $e"),
+          backgroundColor: redColor,
+        ),
+      );
+    }
+  }
+
+  Future<void> _printBillToIminOnly(BuildContext context) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                color: appPrimaryColor,
+              ),
+              SizedBox(height: 16),
+              Text("Printing to IMIN device...",
+                  style: TextStyle(color: whiteColor)),
+            ],
+          ),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      await WidgetsBinding.instance.endOfFrame;
+
+      Uint8List? imageBytes = await captureMonochromeReceipt(normalReceiptKey);
+
+      if (imageBytes != null) {
+        await printerService.init();
+        await printerService.printBitmap(imageBytes);
+        await printerService.fullCut();
+
+        Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Bill printed successfully to IMIN device!"),
+            backgroundColor: greenColor,
+          ),
+        );
+      } else {
+        throw Exception("Image capture failed: normalReceiptKey returned null");
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("IMIN Print failed: $e"),
           backgroundColor: redColor,
         ),
       );
@@ -347,6 +323,7 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
             child: SingleChildScrollView(
               child: Container(
+                width: size.width * 0.4,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: whiteColor,
@@ -420,27 +397,16 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                       ),
 
                     const SizedBox(height: 20),
-
-                    // Action Buttons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // ElevatedButton.icon(
-                        //   onPressed: () {
-                        //     discoverPrintersWithPorts(context);
-                        //   },
-                        //   icon: const Icon(Icons.info_outline),
-                        //   label: const Text("Printer Detect"),
-                        //   style: ElevatedButton.styleFrom(
-                        //     backgroundColor: Colors.blue,
-                        //     foregroundColor: whiteColor,
-                        //   ),
-                        // ),
-                        // horizontalSpace(width: 10),
                         if (invoice.kotItems!.isNotEmpty)
                           ElevatedButton.icon(
                             onPressed: () {
-                              discoverPrintersWithPorts(context);
+                              _startKOTPrintingThermalOnly(
+                                context,
+                                ipController.text.trim(),
+                              );
                             },
                             icon: const Icon(Icons.print),
                             label: const Text("KOT Print"),
@@ -452,10 +418,14 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                         horizontalSpace(width: 10),
                         ElevatedButton.icon(
                           onPressed: () async {
-                            await _printBillToImin(context);
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((_) async {
+                              await _ensureIminServiceReady();
+                              await _printBillToIminOnly(context);
+                            });
                           },
                           icon: const Icon(Icons.print),
-                          label: const Text("Print Bills"),
+                          label: const Text("Print Bill"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: greenColor,
                             foregroundColor: whiteColor,

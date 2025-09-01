@@ -73,9 +73,11 @@ class Data {
     String? currencySymbol,
     String? printType,
     bool? tipEnabled,
+    bool? stockMaintenance,
     String? createdAt,
     num? v,
-    bool? stockMaintenance,
+    String? logo,
+    String? image,
   }) {
     _location = location;
     _id = id;
@@ -86,9 +88,11 @@ class Data {
     _currencySymbol = currencySymbol;
     _printType = printType;
     _tipEnabled = tipEnabled;
+    _stockMaintenance = stockMaintenance;
     _createdAt = createdAt;
     _v = v;
-    _stockMaintenance = stockMaintenance;
+    _logo = logo;
+    _image = image;
   }
 
   Data.fromJson(dynamic json) {
@@ -102,9 +106,11 @@ class Data {
     _currencySymbol = json['currencySymbol'];
     _printType = json['printType'];
     _tipEnabled = json['tipEnabled'];
+    _stockMaintenance = json['stockMaintenance'];
     _createdAt = json['createdAt'];
     _v = json['__v'];
-    _stockMaintenance = json['stockMaintenance'];
+    _logo = json['logo'];
+    _image = json['image'];
   }
   Location? _location;
   String? _id;
@@ -115,9 +121,11 @@ class Data {
   String? _currencySymbol;
   String? _printType;
   bool? _tipEnabled;
+  bool? _stockMaintenance;
   String? _createdAt;
   num? _v;
-  bool? _stockMaintenance;
+  String? _logo;
+  String? _image;
   Data copyWith({
     Location? location,
     String? id,
@@ -128,9 +136,11 @@ class Data {
     String? currencySymbol,
     String? printType,
     bool? tipEnabled,
+    bool? stockMaintenance,
     String? createdAt,
     num? v,
-    bool? stockMaintenance,
+    String? logo,
+    String? image,
   }) =>
       Data(
         location: location ?? _location,
@@ -142,9 +152,11 @@ class Data {
         currencySymbol: currencySymbol ?? _currencySymbol,
         printType: printType ?? _printType,
         tipEnabled: tipEnabled ?? _tipEnabled,
+        stockMaintenance: stockMaintenance ?? _stockMaintenance,
         createdAt: createdAt ?? _createdAt,
         v: v ?? _v,
-        stockMaintenance: stockMaintenance ?? _stockMaintenance,
+        logo: logo ?? _logo,
+        image: image ?? _image,
       );
   Location? get location => _location;
   String? get id => _id;
@@ -155,9 +167,11 @@ class Data {
   String? get currencySymbol => _currencySymbol;
   String? get printType => _printType;
   bool? get tipEnabled => _tipEnabled;
+  bool? get stockMaintenance => _stockMaintenance;
   String? get createdAt => _createdAt;
   num? get v => _v;
-  bool? get stockMaintenance => _stockMaintenance;
+  String? get logo => _logo;
+  String? get image => _image;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -172,9 +186,11 @@ class Data {
     map['currencySymbol'] = _currencySymbol;
     map['printType'] = _printType;
     map['tipEnabled'] = _tipEnabled;
+    map['stockMaintenance'] = _stockMaintenance;
     map['createdAt'] = _createdAt;
     map['__v'] = _v;
-    map['stockMaintenance'] = _stockMaintenance;
+    map['logo'] = _logo;
+    map['image'] = _image;
     return map;
   }
 }

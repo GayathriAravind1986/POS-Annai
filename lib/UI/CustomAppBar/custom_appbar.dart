@@ -128,24 +128,24 @@ class CustomAppBarViewState extends State<CustomAppBarView> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16),
-                  TextButton.icon(
-                    onPressed: () => widget.onTabSelected(2),
-                    icon: Icon(
-                      Icons.note_alt_outlined,
-                      size: 30,
-                      color: widget.selectedIndex == 2
-                          ? appPrimaryColor
-                          : greyColor,
-                    ),
-                    label: Text(
-                      "Report",
-                      style: MyTextStyle.f16(
-                        weight: FontWeight.bold,
-                        widget.selectedIndex == 2 ? appPrimaryColor : greyColor,
-                      ),
-                    ),
-                  ),
+                  // SizedBox(width: 16),
+                  // TextButton.icon(
+                  //   onPressed: () => widget.onTabSelected(2),
+                  //   icon: Icon(
+                  //     Icons.note_alt_outlined,
+                  //     size: 30,
+                  //     color: widget.selectedIndex == 2
+                  //         ? appPrimaryColor
+                  //         : greyColor,
+                  //   ),
+                  //   label: Text(
+                  //     "Report",
+                  //     style: MyTextStyle.f16(
+                  //       weight: FontWeight.bold,
+                  //       widget.selectedIndex == 2 ? appPrimaryColor : greyColor,
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(width: 16),
                   (getStockMaintanencesModel.data?.stockMaintenance == true)
                       ? TextButton.icon(

@@ -20,6 +20,7 @@ import 'package:simple/ModelClass/HomeScreen/Category&Product/Get_product_by_cat
 import 'package:simple/ModelClass/Order/Get_view_order_model.dart';
 import 'package:simple/ModelClass/Order/Post_generate_order_model.dart';
 import 'package:simple/ModelClass/Order/Update_generate_order_model.dart';
+import 'package:simple/ModelClass/ShopDetails/getStockMaintanencesModel.dart';
 import 'package:simple/ModelClass/Table/Get_table_model.dart';
 import 'package:simple/ModelClass/Waiter/getWaiterModel.dart';
 import 'package:simple/Reusable/color.dart';
@@ -123,6 +124,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
   GetWaiterModel getWaiterModel = GetWaiterModel();
   UpdateGenerateOrderModel updateGenerateOrderModel =
       UpdateGenerateOrderModel();
+  GetStockMaintanencesModel getStockMaintanencesModel =
+      GetStockMaintanencesModel();
   final TextEditingController ipController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   TextEditingController searchController = TextEditingController();
@@ -265,7 +268,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancel"),
+              child: const Text("Cancel",
+                  style: TextStyle(color: appPrimaryColor)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -286,7 +290,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                   }
                 }
               },
-              child: const Text("Connect & Print KOT"),
+              child: const Text("Connect & Print KOT",
+                  style: TextStyle(color: appPrimaryColor)),
             ),
           ],
         );
@@ -323,16 +328,24 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
         final result = await printer.connect();
 
         if (result == PosPrintResult.success) {
-          // ✅ Connected
           final profile = await CapabilityProfile.load();
           final generator = Generator(PaperSize.mm58, profile);
 
           final decodedImage = img.decodeImage(imageBytes);
           if (decodedImage != null) {
+            final resizedImage = img.copyResize(
+              decodedImage,
+              width: 384, // 58mm = ~384 dots at 203 DPI
+              maintainAspect: true,
+            );
             List<int> bytes = [];
             bytes += generator.reset();
-            bytes +=
-                generator.imageRaster(decodedImage, align: PosAlign.center);
+            bytes += generator.imageRaster(
+              resizedImage,
+              align: PosAlign.center,
+              highDensityHorizontal: true, // Better quality
+              highDensityVertical: true,
+            );
             bytes += generator.feed(2);
             bytes += generator.cut();
             await printer.printTicket(bytes);
@@ -372,20 +385,6 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
     }
   }
 
-  Future<bool> isIminDevice() async {
-    final deviceInfo = DeviceInfoPlugin();
-    final androidInfo = await deviceInfo.androidInfo;
-    final manufacturer = (androidInfo.manufacturer ?? "").toLowerCase();
-    final model = (androidInfo.model ?? "").toLowerCase();
-
-    // Many IMIN devices report different manufacturer strings
-    if (manufacturer.contains("imin") || model.contains("imin")) {
-      return true;
-    }
-    return false;
-  }
-
-
   Future<void> _printBillToIminOnly(BuildContext context) async {
     try {
       showDialog(
@@ -411,24 +410,22 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
       Uint8List? imageBytes = await captureMonochromeReceipt(normalReceiptKey);
 
+      if (imageBytes != null) {
+        await printerService.init();
+        await printerService.printBitmap(imageBytes);
+        await printerService.fullCut();
 
-        if (imageBytes != null) {
-          await printerService.init();
-          await printerService.printBitmap(imageBytes);
-          await printerService.fullCut();
+        Navigator.of(context).pop();
 
-          Navigator.of(context).pop();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Bill printed successfully to IMIN device!"),
-              backgroundColor: greenColor,
-            ),
-          );
-        } else {
-          throw Exception(
-              "Image capture failed: normalReceiptKey returned null");
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Bill printed successfully to IMIN device!"),
+            backgroundColor: greenColor,
+          ),
+        );
+      } else {
+        throw Exception("Image capture failed: normalReceiptKey returned null");
+      }
     } catch (e) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -492,6 +489,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
               const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
           child: SingleChildScrollView(
             child: Container(
+              width: MediaQuery.of(context).size.width * 0.4,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: whiteColor,
@@ -556,7 +554,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                       if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
                         ElevatedButton.icon(
                           onPressed: () {
-                            _showPrinterIpDialog(context);
+                            _startKOTPrintingThermalOnly(
+                              context,
+                              ipController.text.trim(),
+                            );
                           },
                           icon: const Icon(Icons.print),
                           label: const Text("KOT Print"),
@@ -568,12 +569,11 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                       horizontalSpace(width: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
-
-                            WidgetsBinding.instance.addPostFrameCallback((_) async {
-                              await _ensureIminServiceReady();
-                              await _printBillToIminOnly(context);
-                            });
-
+                          WidgetsBinding.instance
+                              .addPostFrameCallback((_) async {
+                            await _ensureIminServiceReady();
+                            await _printBillToIminOnly(context);
+                          });
                         },
                         icon: const Icon(Icons.print),
                         label: const Text("Print Bill"),
@@ -664,6 +664,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
               const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
           child: SingleChildScrollView(
             child: Container(
+              width: MediaQuery.of(context).size.width * 0.4,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: whiteColor,
@@ -721,7 +722,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                       if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
                         ElevatedButton.icon(
                           onPressed: () {
-                            _showPrinterIpDialog(context);
+                            _startKOTPrintingThermalOnly(
+                              context,
+                              ipController.text.trim(),
+                            );
                           },
                           icon: const Icon(Icons.print),
                           label: const Text("KOT Print"),
@@ -733,10 +737,11 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                       horizontalSpace(width: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
-                            WidgetsBinding.instance.addPostFrameCallback((_) async {
-                              await _ensureIminServiceReady();
-                              await _printBillToIminOnly(context);
-                            });
+                          WidgetsBinding.instance
+                              .addPostFrameCallback((_) async {
+                            await _ensureIminServiceReady();
+                            await _printBillToIminOnly(context);
+                          });
                         },
                         icon: const Icon(Icons.print),
                         label: const Text("Print Bills"),
@@ -907,7 +912,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
   @override
   void initState() {
     super.initState();
-    ipController.text = "192.168.1.96";
+    ipController.text = "192.168.1.87";
     if (kIsWeb) {
       printerService = MockPrinterService();
       printerServiceThermal = MockPrinterService();
@@ -934,6 +939,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
     }
     context.read<FoodCategoryBloc>().add(TableDine());
     context.read<FoodCategoryBloc>().add(WaiterDine());
+    context.read<FoodCategoryBloc>().add(StockDetails());
     setState(() {
       categoryLoad = true;
     });
@@ -4345,6 +4351,37 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                   setState(() {
                                                                                     selectedFullPaymentMethod = "UPI";
                                                                                   });
+
+                                                                                  if (getStockMaintanencesModel.data?.image != null && getStockMaintanencesModel.data!.image!.isNotEmpty) {
+                                                                                    showDialog(
+                                                                                      context: context,
+                                                                                      builder: (context) {
+                                                                                        return AlertDialog(
+                                                                                          shape: RoundedRectangleBorder(
+                                                                                            borderRadius: BorderRadius.circular(12),
+                                                                                          ),
+                                                                                          title: const Text("Scan to Pay"),
+                                                                                          content: SizedBox(
+                                                                                            width: 250,
+                                                                                            height: 250,
+                                                                                            child: Image.network(
+                                                                                              getStockMaintanencesModel.data!.image!,
+                                                                                              fit: BoxFit.contain,
+                                                                                              errorBuilder: (context, error, stackTrace) => const Text("Failed to load QR"),
+                                                                                            ),
+                                                                                          ),
+                                                                                          actions: [
+                                                                                            TextButton(
+                                                                                              onPressed: () => Navigator.pop(context),
+                                                                                              child: const Text("Close", style: TextStyle(color: appPrimaryColor)),
+                                                                                            ),
+                                                                                          ],
+                                                                                        );
+                                                                                      },
+                                                                                    );
+                                                                                  } else {
+                                                                                    showToast("QR code not available", context, color: false);
+                                                                                  }
                                                                                 },
                                                                                 child: PaymentOption(
                                                                                   icon: Icons.qr_code,
@@ -6221,6 +6258,37 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                     setState(() {
                                                                                       selectedFullPaymentMethod = "UPI";
                                                                                     });
+
+                                                                                    if (getStockMaintanencesModel.data?.image != null && getStockMaintanencesModel.data!.image!.isNotEmpty) {
+                                                                                      showDialog(
+                                                                                        context: context,
+                                                                                        builder: (context) {
+                                                                                          return AlertDialog(
+                                                                                            shape: RoundedRectangleBorder(
+                                                                                              borderRadius: BorderRadius.circular(12),
+                                                                                            ),
+                                                                                            title: const Text("Scan to Pay"),
+                                                                                            content: SizedBox(
+                                                                                              width: 250,
+                                                                                              height: 250,
+                                                                                              child: Image.network(
+                                                                                                getStockMaintanencesModel.data!.image!,
+                                                                                                fit: BoxFit.contain,
+                                                                                                errorBuilder: (context, error, stackTrace) => const Text("Failed to load QR"),
+                                                                                              ),
+                                                                                            ),
+                                                                                            actions: [
+                                                                                              TextButton(
+                                                                                                onPressed: () => Navigator.pop(context),
+                                                                                                child: const Text("Close", style: TextStyle(color: appPrimaryColor)),
+                                                                                              ),
+                                                                                            ],
+                                                                                          );
+                                                                                        },
+                                                                                      );
+                                                                                    } else {
+                                                                                      showToast("QR code not available", context, color: false);
+                                                                                    }
                                                                                   },
                                                                                   child: PaymentOption(
                                                                                     icon: Icons.qr_code,
@@ -7029,6 +7097,24 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
               categoryLoad = false;
             });
             showToast("No Waiter found", context, color: false);
+          }
+          return true;
+        }
+        if (current is GetStockMaintanencesModel) {
+          getStockMaintanencesModel = current;
+          if (getStockMaintanencesModel.errorResponse?.isUnauthorized == true) {
+            _handle401Error();
+            return true;
+          }
+          if (getStockMaintanencesModel.success == true) {
+            setState(() {
+              categoryLoad = false;
+            });
+          } else {
+            setState(() {
+              categoryLoad = false;
+            });
+            showToast("No Stock found", context, color: false);
           }
           return true;
         }
