@@ -285,6 +285,12 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
               'qty': e.quantity,
             })
         .toList();
+    List<Map<String, dynamic>> finalTax = order.finalTaxes!
+        .map((e) => {
+              'name': e.name,
+              'amt': e.amount,
+            })
+        .toList();
     String businessName = invoice.businessName ?? '';
     String address = invoice.address ?? '';
     String gst = invoice.gstNumber ?? '';
@@ -358,6 +364,7 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                         address: address,
                         gst: gst,
                         items: items,
+                        finalTax: finalTax,
                         tax: taxAmount,
                         paidBy: paymentMethod,
                         tamilTagline: '',

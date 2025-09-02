@@ -69,6 +69,7 @@ class Data {
     String? id,
     String? orderNumber,
     List<Items>? items,
+    List<FinalTaxes>? finalTaxes,
     num? subtotal,
     num? tax,
     num? total,
@@ -89,11 +90,13 @@ class Data {
     List<Payments>? payments,
     String? tableName,
     String? waiterName,
+    bool? isEdit,
     Invoice? invoice,
   }) {
     _id = id;
     _orderNumber = orderNumber;
     _items = items;
+    _finalTaxes = finalTaxes;
     _subtotal = subtotal;
     _tax = tax;
     _total = total;
@@ -102,8 +105,8 @@ class Data {
     _orderType = orderType;
     _isDeleted = isDeleted;
     _orderStatus = orderStatus;
-    _locationId = locationId;
     _operator = operator;
+    _locationId = locationId;
     _isDiscountApplied = isDiscountApplied;
     _discountAmount = discountAmount;
     _tipAmount = tipAmount;
@@ -114,6 +117,7 @@ class Data {
     _payments = payments;
     _tableName = tableName;
     _waiterName = waiterName;
+    _isEdit = isEdit;
     _invoice = invoice;
   }
 
@@ -126,17 +130,23 @@ class Data {
         _items?.add(Items.fromJson(v));
       });
     }
+    if (json['finalTaxes'] != null) {
+      _finalTaxes = [];
+      json['finalTaxes'].forEach((v) {
+        _finalTaxes?.add(FinalTaxes.fromJson(v));
+      });
+    }
     _subtotal = json['subtotal'];
     _tax = json['tax'];
     _total = json['total'];
     _tableNo = json['tableNo'];
     _waiter = json['waiter'];
     _orderType = json['orderType'];
-    _orderStatus = json['orderStatus'];
     _isDeleted = json['isDeleted'];
-    _locationId = json['locationId'];
+    _orderStatus = json['orderStatus'];
     _operator =
         json['operator'] != null ? Operator.fromJson(json['operator']) : null;
+    _locationId = json['locationId'];
     _isDiscountApplied = json['isDiscountApplied'];
     _discountAmount = json['discountAmount'];
     _tipAmount = json['tipAmount'];
@@ -152,22 +162,24 @@ class Data {
     }
     _tableName = json['tableName'];
     _waiterName = json['waiterName'];
+    _isEdit = json['isEdit'];
     _invoice =
         json['invoice'] != null ? Invoice.fromJson(json['invoice']) : null;
   }
   String? _id;
   String? _orderNumber;
   List<Items>? _items;
+  List<FinalTaxes>? _finalTaxes;
   num? _subtotal;
   num? _tax;
   num? _total;
   String? _tableNo;
   String? _waiter;
   String? _orderType;
-  String? _orderStatus;
   bool? _isDeleted;
-  String? _locationId;
+  String? _orderStatus;
   Operator? _operator;
+  String? _locationId;
   bool? _isDiscountApplied;
   num? _discountAmount;
   num? _tipAmount;
@@ -178,21 +190,23 @@ class Data {
   List<Payments>? _payments;
   String? _tableName;
   String? _waiterName;
+  bool? _isEdit;
   Invoice? _invoice;
   Data copyWith({
     String? id,
     String? orderNumber,
     List<Items>? items,
+    List<FinalTaxes>? finalTaxes,
     num? subtotal,
     num? tax,
     num? total,
     String? tableNo,
     String? waiter,
     String? orderType,
-    String? orderStatus,
     bool? isDeleted,
-    String? locationId,
+    String? orderStatus,
     Operator? operator,
+    String? locationId,
     bool? isDiscountApplied,
     num? discountAmount,
     num? tipAmount,
@@ -203,22 +217,24 @@ class Data {
     List<Payments>? payments,
     String? tableName,
     String? waiterName,
+    bool? isEdit,
     Invoice? invoice,
   }) =>
       Data(
         id: id ?? _id,
         orderNumber: orderNumber ?? _orderNumber,
         items: items ?? _items,
+        finalTaxes: finalTaxes ?? _finalTaxes,
         subtotal: subtotal ?? _subtotal,
         tax: tax ?? _tax,
         total: total ?? _total,
         tableNo: tableNo ?? _tableNo,
         waiter: waiter ?? _waiter,
-        isDeleted: isDeleted ?? _isDeleted,
         orderType: orderType ?? _orderType,
+        isDeleted: isDeleted ?? _isDeleted,
         orderStatus: orderStatus ?? _orderStatus,
-        locationId: locationId ?? _locationId,
         operator: operator ?? _operator,
+        locationId: locationId ?? _locationId,
         isDiscountApplied: isDiscountApplied ?? _isDiscountApplied,
         discountAmount: discountAmount ?? _discountAmount,
         tipAmount: tipAmount ?? _tipAmount,
@@ -229,21 +245,23 @@ class Data {
         payments: payments ?? _payments,
         tableName: tableName ?? _tableName,
         waiterName: waiterName ?? _waiterName,
+        isEdit: isEdit ?? _isEdit,
         invoice: invoice ?? _invoice,
       );
   String? get id => _id;
   String? get orderNumber => _orderNumber;
   List<Items>? get items => _items;
+  List<FinalTaxes>? get finalTaxes => _finalTaxes;
   num? get subtotal => _subtotal;
   num? get tax => _tax;
   num? get total => _total;
   String? get tableNo => _tableNo;
   String? get waiter => _waiter;
   String? get orderType => _orderType;
-  String? get orderStatus => _orderStatus;
   bool? get isDeleted => _isDeleted;
-  String? get locationId => _locationId;
+  String? get orderStatus => _orderStatus;
   Operator? get operator => _operator;
+  String? get locationId => _locationId;
   bool? get isDiscountApplied => _isDiscountApplied;
   num? get discountAmount => _discountAmount;
   num? get tipAmount => _tipAmount;
@@ -254,6 +272,7 @@ class Data {
   List<Payments>? get payments => _payments;
   String? get tableName => _tableName;
   String? get waiterName => _waiterName;
+  bool? get isEdit => _isEdit;
   Invoice? get invoice => _invoice;
 
   Map<String, dynamic> toJson() {
@@ -263,18 +282,21 @@ class Data {
     if (_items != null) {
       map['items'] = _items?.map((v) => v.toJson()).toList();
     }
+    if (_finalTaxes != null) {
+      map['finalTaxes'] = _finalTaxes?.map((v) => v.toJson()).toList();
+    }
     map['subtotal'] = _subtotal;
     map['tax'] = _tax;
     map['total'] = _total;
     map['tableNo'] = _tableNo;
     map['waiter'] = _waiter;
     map['orderType'] = _orderType;
-    map['orderStatus'] = _orderStatus;
     map['isDeleted'] = _isDeleted;
-    map['locationId'] = _locationId;
+    map['orderStatus'] = _orderStatus;
     if (_operator != null) {
       map['operator'] = _operator?.toJson();
     }
+    map['locationId'] = _locationId;
     map['isDiscountApplied'] = _isDiscountApplied;
     map['discountAmount'] = _discountAmount;
     map['tipAmount'] = _tipAmount;
@@ -287,6 +309,7 @@ class Data {
     }
     map['tableName'] = _tableName;
     map['waiterName'] = _waiterName;
+    map['isEdit'] = _isEdit;
     if (_invoice != null) {
       map['invoice'] = _invoice?.toJson();
     }
@@ -309,6 +332,55 @@ class Data {
 /// paidBy : "CARD: ₹310.00"
 /// transactionId : "TXN-20250717-362419"
 /// tableNum : "1"
+class FinalTaxes {
+  FinalTaxes({
+    String? name,
+    String? amount,
+    num? percentage,
+    String? id,
+  }) {
+    _name = name;
+    _amount = amount;
+    _percentage = percentage;
+    _id = id;
+  }
+
+  FinalTaxes.fromJson(dynamic json) {
+    _name = json['name'];
+    _amount = json['amount'];
+    _percentage = json['percentage'];
+    _id = json['_id'];
+  }
+  String? _name;
+  String? _amount;
+  num? _percentage;
+  String? _id;
+  FinalTaxes copyWith({
+    String? name,
+    String? amount,
+    num? percentage,
+    String? id,
+  }) =>
+      FinalTaxes(
+        name: name ?? _name,
+        amount: amount ?? _amount,
+        percentage: percentage ?? _percentage,
+        id: id ?? _id,
+      );
+  String? get name => _name;
+  String? get amount => _amount;
+  num? get percentage => _percentage;
+  String? get id => _id;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['name'] = _name;
+    map['amount'] = _amount;
+    map['percentage'] = _percentage;
+    map['_id'] = _id;
+    return map;
+  }
+}
 
 class Operator {
   Operator({

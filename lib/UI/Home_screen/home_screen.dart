@@ -459,6 +459,12 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                 'qty': e.quantity,
               })
           .toList();
+      List<Map<String, dynamic>> finalTax = postGenerateOrderModel.order!.finalTaxes!
+          .map((e) => {
+        'name': e.name,
+        'amt': e.amount,
+      })
+          .toList();
       String businessName = postGenerateOrderModel.invoice!.businessName ?? '';
       String address = postGenerateOrderModel.invoice!.address ?? '';
       String gst = postGenerateOrderModel.invoice!.gstNumber ?? '';
@@ -505,6 +511,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                       address: address,
                       gst: gst,
                       items: items,
+                      finalTax:finalTax,
                       tax: taxPercent,
                       paidBy: paymentMethod,
                       tamilTagline: '',
@@ -633,6 +640,12 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                     'qty': e.quantity,
                   })
               .toList();
+      List<Map<String, dynamic>> finalTax = updateGenerateOrderModel.order!.finalTaxes!
+          .map((e) => {
+        'name': e.name,
+        'amt': e.amount,
+      })
+          .toList();
       String businessName =
           updateGenerateOrderModel.invoice!.businessName ?? '';
       String address = updateGenerateOrderModel.invoice!.address ?? '';
@@ -679,6 +692,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                         address: address,
                         gst: gst,
                         items: items,
+                        finalTax:finalTax,
                         tax: taxPercent,
                         paidBy: paymentMethod,
                         tamilTagline: '',
@@ -4642,7 +4656,6 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                             setState(() {
                                                                                               isCompleteOrder = false;
                                                                                             });
-                                                                                            debugPrint("editId:${widget.existingOrder!.data!.id}");
                                                                                             context.read<FoodCategoryBloc>().add(UpdateOrder(jsonEncode(orderPayload), widget.existingOrder?.data!.id));
                                                                                           }
                                                                                         } else {

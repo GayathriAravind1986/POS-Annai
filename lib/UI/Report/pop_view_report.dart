@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:simple/ModelClass/Report/Get_report_model.dart';
+import 'package:simple/ModelClass/Report/Get_report_with_ordertype_model.dart';
 import 'package:simple/Reusable/color.dart';
 import 'package:simple/Reusable/space.dart';
 import 'package:simple/Reusable/text_styles.dart';
@@ -43,9 +43,13 @@ class _ThermalReportReceiptDialogState
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    final report = widget.getReportModel.data!;
+    final reportLine = widget.getReportModel.orderTypes!.line!.data!;
+    final reportParcel = widget.getReportModel.orderTypes!.parcel!.data!;
+    final reportAc = widget.getReportModel.orderTypes!.ac!.data!;
+    final reportHd = widget.getReportModel.orderTypes!.hd!.data!;
+    final reportSwiggy = widget.getReportModel.orderTypes!.swiggy!.data!;
 
-    List<Map<String, dynamic>> items = report
+    List<Map<String, dynamic>> itemsLine = reportLine
         .map((e) => {
               'name': e.productName,
               'qty': e.totalQty,
@@ -53,7 +57,38 @@ class _ThermalReportReceiptDialogState
               'total': (e.totalAmount ?? 0).toDouble(),
             })
         .toList();
-
+    List<Map<String, dynamic>> itemsParcel = reportParcel
+        .map((e) => {
+              'name': e.productName,
+              'qty': e.totalQty,
+              'price': (e.unitPrice ?? 0).toDouble(),
+              'total': (e.totalAmount ?? 0).toDouble(),
+            })
+        .toList();
+    List<Map<String, dynamic>> itemsAc = reportAc
+        .map((e) => {
+              'name': e.productName,
+              'qty': e.totalQty,
+              'price': (e.unitPrice ?? 0).toDouble(),
+              'total': (e.totalAmount ?? 0).toDouble(),
+            })
+        .toList();
+    List<Map<String, dynamic>> itemsHd = reportHd
+        .map((e) => {
+              'name': e.productName,
+              'qty': e.totalQty,
+              'price': (e.unitPrice ?? 0).toDouble(),
+              'total': (e.totalAmount ?? 0).toDouble(),
+            })
+        .toList();
+    List<Map<String, dynamic>> itemsSwiggy = reportSwiggy
+        .map((e) => {
+              'name': e.productName,
+              'qty': e.totalQty,
+              'price': (e.unitPrice ?? 0).toDouble(),
+              'total': (e.totalAmount ?? 0).toDouble(),
+            })
+        .toList();
     String businessName = widget.getReportModel.businessName ?? '';
     String userName = widget.getReportModel.userName ?? '';
     String address = widget.getReportModel.address ?? '';
@@ -70,7 +105,11 @@ class _ThermalReportReceiptDialogState
     int totalQty = (widget.getReportModel.finalQty ?? 0.0).toInt();
     String date = DateFormat('dd/MM/yyyy hh:mm a').format(DateTime.now());
 
-    return widget.getReportModel.data == null
+    return widget.getReportModel.orderTypes!.line!.data == null ||
+            widget.getReportModel.orderTypes!.parcel!.data == null ||
+            widget.getReportModel.orderTypes!.ac!.data == null ||
+            widget.getReportModel.orderTypes!.hd!.data == null ||
+            widget.getReportModel.orderTypes!.swiggy!.data == null
         ? Container(
             padding:
                 EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.1),
@@ -124,7 +163,11 @@ class _ThermalReportReceiptDialogState
                           tamilTagline: "",
                           address: address,
                           phone: phone,
-                          items: items,
+                          itemsLine: itemsLine,
+                          itemsParcel: itemsParcel,
+                          itemsAc: itemsAc,
+                          itemsHd: itemsHd,
+                          itemsSwiggy: itemsSwiggy,
                           reportDate: date,
                           takenBy: userName,
                           totalQuantity: totalQty,

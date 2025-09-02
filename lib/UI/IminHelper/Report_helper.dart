@@ -12,7 +12,11 @@ Widget getReportReceiptWidget({
   required String fromDate,
   required String toDate,
   required String phone,
-  required List<Map<String, dynamic>> items,
+  required List<Map<String, dynamic>> itemsLine,
+  required List<Map<String, dynamic>> itemsParcel,
+  required List<Map<String, dynamic>> itemsAc,
+  required List<Map<String, dynamic>> itemsHd,
+  required List<Map<String, dynamic>> itemsSwiggy,
   required String reportDate,
   required String takenBy,
   required int totalQuantity,
@@ -90,15 +94,26 @@ Widget getReportReceiptWidget({
           _buildThermalLabelRow("From Date", fromDate),
           _buildThermalLabelRow("To Date", toDate),
           _buildThermalLabelRow("Report Date", reportDate),
-          _buildThermalLabelRow("Taken By", takenBy),
-          _buildThermalLabelRow("Location", location),
+          // _buildThermalLabelRow("Taken By", takenBy),
+          // _buildThermalLabelRow("Location", location),
           const SizedBox(height: 8),
           Divider(thickness: 4, color: blackColor),
+          const Center(
+            child: Text(
+              "LINE",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: blackColor,
+              ),
+            ),
+          ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
           if (showItems)
             Row(
               children: const [
                 Expanded(
-                  flex: 1,
+                  flex: 2,
                   child: Text(
                     "S.No",
                     textAlign: TextAlign.center,
@@ -132,7 +147,7 @@ Widget getReportReceiptWidget({
             ),
           if (showItems) Divider(thickness: 4, color: blackColor),
           if (showItems) ...[
-            ...items.asMap().entries.map((entry) {
+            ...itemsLine.asMap().entries.map((entry) {
               final index = entry.key;
               final item = entry.value;
               return _buildThermalItemRow(
@@ -144,11 +159,253 @@ Widget getReportReceiptWidget({
             }),
           ],
           if (showItems) Divider(thickness: 4, color: blackColor),
-          _buildThermalTotalRow("Total Quantity", totalQuantity.toDouble()),
-          _buildThermalTotalRow(
-            "Total Amount",
-            totalAmount,
+          const Center(
+            child: Text(
+              "PARCEL",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: blackColor,
+              ),
+            ),
           ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          if (showItems)
+            Row(
+              children: const [
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "S.No",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: Text(
+                    "Product",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "Qty",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    "Amount",
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          if (showItems) ...[
+            ...itemsParcel.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              return _buildThermalItemRow(
+                index + 1,
+                item['name'],
+                item['qty'],
+                item['total'],
+              );
+            }),
+          ],
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          const Center(
+            child: Text(
+              "AC",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: blackColor,
+              ),
+            ),
+          ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          if (showItems)
+            Row(
+              children: const [
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "S.No",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: Text(
+                    "Product",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "Qty",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    "Amount",
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          if (showItems) ...[
+            ...itemsAc.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              return _buildThermalItemRow(
+                index + 1,
+                item['name'],
+                item['qty'],
+                item['total'],
+              );
+            }),
+          ],
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          const Center(
+            child: Text(
+              "HD",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: blackColor,
+              ),
+            ),
+          ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          if (showItems)
+            Row(
+              children: const [
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "S.No",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: Text(
+                    "Product",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "Qty",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    "Amount",
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          if (showItems) ...[
+            ...itemsHd.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              return _buildThermalItemRow(
+                index + 1,
+                item['name'],
+                item['qty'],
+                item['total'],
+              );
+            }),
+          ],
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          const Center(
+            child: Text(
+              "SWIGGY",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: blackColor,
+              ),
+            ),
+          ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          if (showItems)
+            Row(
+              children: const [
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "S.No",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: Text(
+                    "Product",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "Qty",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    "Amount",
+                    textAlign: TextAlign.end,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          if (showItems) ...[
+            ...itemsSwiggy.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              return _buildThermalItemRow(
+                index + 1,
+                item['name'],
+                item['qty'],
+                item['total'],
+              );
+            }),
+          ],
+          if (showItems) Divider(thickness: 4, color: blackColor),
+          _buildThermalTotalRow("Total Quantity", totalQuantity.toDouble(),
+              isBold: true),
+          _buildThermalTotalRow("Total Amount", totalAmount, isBold: true),
 
           Divider(thickness: 4, color: blackColor),
 
@@ -164,26 +421,26 @@ Widget getReportReceiptWidget({
             ),
           ),
           const SizedBox(height: 4),
-          const Center(
-            child: Text(
-              "Powered By",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: blackColor,
-              ),
-            ),
-          ),
-          const Center(
-            child: Text(
-              "www.sentinixtechsolutions.com",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: blackColor,
-              ),
-            ),
-          ),
+          // const Center(
+          //   child: Text(
+          //     "Powered By",
+          //     style: TextStyle(
+          //       fontWeight: FontWeight.bold,
+          //       fontSize: 14,
+          //       color: blackColor,
+          //     ),
+          //   ),
+          // ),
+          // const Center(
+          //   child: Text(
+          //     "www.sentinixtechsolutions.com",
+          //     style: TextStyle(
+          //       fontWeight: FontWeight.bold,
+          //       fontSize: 14,
+          //       color: blackColor,
+          //     ),
+          //   ),
+          // ),
           const SizedBox(height: 80), // Footer padding
         ],
       ),
@@ -272,7 +529,7 @@ Widget _buildThermalTotalRow(String label, double amount,
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             fontSize: isBold
-                ? 24
+                ? 22
                 : 20, // Larger for TOTAL, increased base from 12 to 14
             color: blackColor,
           ),
@@ -284,7 +541,7 @@ Widget _buildThermalTotalRow(String label, double amount,
           style: TextStyle(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             fontSize: isBold
-                ? 24
+                ? 22
                 : 20, // Larger for TOTAL, increased base from 12 to 14
             color: blackColor,
           ),

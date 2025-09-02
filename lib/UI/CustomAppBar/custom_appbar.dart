@@ -81,12 +81,14 @@ class CustomAppBarViewState extends State<CustomAppBarView> {
           child: Row(
             children: [
               getStockMaintanencesModel.data?.name != null
-                  ? Text(
-                      getStockMaintanencesModel.data!.name.toString(),
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: appPrimaryColor,
+                  ? Expanded(
+                      child: Text(
+                        getStockMaintanencesModel.data!.name.toString(),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: appPrimaryColor,
+                        ),
                       ),
                     )
                   : Text(""),
@@ -128,24 +130,24 @@ class CustomAppBarViewState extends State<CustomAppBarView> {
                       ),
                     ),
                   ),
-                  // SizedBox(width: 16),
-                  // TextButton.icon(
-                  //   onPressed: () => widget.onTabSelected(2),
-                  //   icon: Icon(
-                  //     Icons.note_alt_outlined,
-                  //     size: 30,
-                  //     color: widget.selectedIndex == 2
-                  //         ? appPrimaryColor
-                  //         : greyColor,
-                  //   ),
-                  //   label: Text(
-                  //     "Report",
-                  //     style: MyTextStyle.f16(
-                  //       weight: FontWeight.bold,
-                  //       widget.selectedIndex == 2 ? appPrimaryColor : greyColor,
-                  //     ),
-                  //   ),
-                  // ),
+                  SizedBox(width: 16),
+                  TextButton.icon(
+                    onPressed: () => widget.onTabSelected(2),
+                    icon: Icon(
+                      Icons.note_alt_outlined,
+                      size: 30,
+                      color: widget.selectedIndex == 2
+                          ? appPrimaryColor
+                          : greyColor,
+                    ),
+                    label: Text(
+                      "Report",
+                      style: MyTextStyle.f16(
+                        weight: FontWeight.bold,
+                        widget.selectedIndex == 2 ? appPrimaryColor : greyColor,
+                      ),
+                    ),
+                  ),
                   SizedBox(width: 16),
                   (getStockMaintanencesModel.data?.stockMaintenance == true)
                       ? TextButton.icon(

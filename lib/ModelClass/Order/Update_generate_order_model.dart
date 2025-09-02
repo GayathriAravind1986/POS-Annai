@@ -104,6 +104,7 @@ class Invoice {
     String? orderStatus,
     List<InvoiceItems>? invoiceItems,
     num? subtotal,
+    List<FinalTaxes>? finalTaxes,
     num? salesTax,
     num? total,
     List<Kot>? kot,
@@ -127,6 +128,7 @@ class Invoice {
     _orderStatus = orderStatus;
     _invoiceItems = invoiceItems;
     _subtotal = subtotal;
+    _finalTaxes = finalTaxes;
     _salesTax = salesTax;
     _total = total;
     _kot = kot;
@@ -157,6 +159,12 @@ class Invoice {
       });
     }
     _subtotal = json['subtotal'];
+    if (json['finalTaxes'] != null) {
+      _finalTaxes = [];
+      json['finalTaxes'].forEach((v) {
+        _finalTaxes?.add(FinalTaxes.fromJson(v));
+      });
+    }
     _salesTax = json['salesTax'];
     _total = json['total'];
     if (json['kot'] != null) {
@@ -185,6 +193,7 @@ class Invoice {
   String? _orderStatus;
   List<InvoiceItems>? _invoiceItems;
   num? _subtotal;
+  List<FinalTaxes>? _finalTaxes;
   num? _salesTax;
   num? _total;
   List<Kot>? _kot;
@@ -208,6 +217,7 @@ class Invoice {
     String? orderStatus,
     List<InvoiceItems>? invoiceItems,
     num? subtotal,
+    List<FinalTaxes>? finalTaxes,
     num? salesTax,
     num? total,
     List<Kot>? kot,
@@ -232,6 +242,7 @@ class Invoice {
         orderStatus: orderStatus ?? _orderStatus,
         invoiceItems: invoiceItems ?? _invoiceItems,
         subtotal: subtotal ?? _subtotal,
+        finalTaxes: finalTaxes ?? _finalTaxes,
         salesTax: salesTax ?? _salesTax,
         total: total ?? _total,
         kot: kot ?? _kot,
@@ -255,6 +266,7 @@ class Invoice {
   String? get orderStatus => _orderStatus;
   List<InvoiceItems>? get invoiceItems => _invoiceItems;
   num? get subtotal => _subtotal;
+  List<FinalTaxes>? get finalTaxes => _finalTaxes;
   num? get salesTax => _salesTax;
   num? get total => _total;
   List<Kot>? get kot => _kot;
@@ -282,6 +294,9 @@ class Invoice {
       map['invoice_items'] = _invoiceItems?.map((v) => v.toJson()).toList();
     }
     map['subtotal'] = _subtotal;
+    if (_finalTaxes != null) {
+      map['finalTaxes'] = _finalTaxes?.map((v) => v.toJson()).toList();
+    }
     map['salesTax'] = _salesTax;
     map['total'] = _total;
     if (_kot != null) {
@@ -307,6 +322,47 @@ class Invoice {
 /// taxPrice : 19.83
 /// totalPrice : 130
 /// isAddon : false
+class FinalTaxes {
+  FinalTaxes({
+    String? name,
+    num? percentage,
+    num? amount,
+  }) {
+    _name = name;
+    _percentage = percentage;
+    _amount = amount;
+  }
+
+  FinalTaxes.fromJson(dynamic json) {
+    _name = json['name'];
+    _percentage = json['percentage'];
+    _amount = json['amount'];
+  }
+  String? _name;
+  num? _percentage;
+  num? _amount;
+  FinalTaxes copyWith({
+    String? name,
+    num? percentage,
+    num? amount,
+  }) =>
+      FinalTaxes(
+        name: name ?? _name,
+        percentage: percentage ?? _percentage,
+        amount: amount ?? _amount,
+      );
+  String? get name => _name;
+  num? get percentage => _percentage;
+  num? get amount => _amount;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['name'] = _name;
+    map['percentage'] = _percentage;
+    map['amount'] = _amount;
+    return map;
+  }
+}
 
 class InvoiceItems {
   InvoiceItems({
@@ -555,6 +611,7 @@ class Order {
     String? id,
     String? orderNumber,
     List<Items>? items,
+    List<FinalTaxes>? finalTaxes,
     num? subtotal,
     String? orderType,
     num? tax,
@@ -567,6 +624,7 @@ class Order {
     _id = id;
     _orderNumber = orderNumber;
     _items = items;
+    _finalTaxes = finalTaxes;
     _subtotal = subtotal;
     _orderType = orderType;
     _tax = tax;
@@ -586,6 +644,12 @@ class Order {
         _items?.add(Items.fromJson(v));
       });
     }
+    if (json['finalTaxes'] != null) {
+      _finalTaxes = [];
+      json['finalTaxes'].forEach((v) {
+        _finalTaxes?.add(FinalTaxes.fromJson(v));
+      });
+    }
     _subtotal = json['subtotal'];
     _orderType = json['orderType'];
     _tax = json['tax'];
@@ -603,6 +667,7 @@ class Order {
   String? _id;
   String? _orderNumber;
   List<Items>? _items;
+  List<FinalTaxes>? _finalTaxes;
   num? _subtotal;
   String? _orderType;
   num? _tax;
@@ -615,6 +680,7 @@ class Order {
     String? id,
     String? orderNumber,
     List<Items>? items,
+    List<FinalTaxes>? finalTaxes,
     num? subtotal,
     String? orderType,
     num? tax,
@@ -628,6 +694,7 @@ class Order {
         id: id ?? _id,
         orderNumber: orderNumber ?? _orderNumber,
         items: items ?? _items,
+        finalTaxes: finalTaxes ?? _finalTaxes,
         subtotal: subtotal ?? _subtotal,
         orderType: orderType ?? _orderType,
         tax: tax ?? _tax,
@@ -640,6 +707,7 @@ class Order {
   String? get id => _id;
   String? get orderNumber => _orderNumber;
   List<Items>? get items => _items;
+  List<FinalTaxes>? get finalTaxes => _finalTaxes;
   num? get subtotal => _subtotal;
   String? get orderType => _orderType;
   num? get tax => _tax;
@@ -655,6 +723,9 @@ class Order {
     map['orderNumber'] = _orderNumber;
     if (_items != null) {
       map['items'] = _items?.map((v) => v.toJson()).toList();
+    }
+    if (_finalTaxes != null) {
+      map['finalTaxes'] = _finalTaxes?.map((v) => v.toJson()).toList();
     }
     map['subtotal'] = _subtotal;
     map['orderType'] = _orderType;
