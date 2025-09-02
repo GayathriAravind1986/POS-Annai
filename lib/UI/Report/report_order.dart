@@ -545,7 +545,8 @@ class ReportViewViewState extends State<ReportViewView> {
                       alignment: Alignment.center,
                       child: const SpinKitChasingDots(
                           color: appPrimaryColor, size: 30))
-                  : getReportModel.orderTypes!.line!.data == null ||
+                  : getReportModel.orderTypes == null ||
+                          getReportModel.orderTypes!.line!.data == null ||
                           getReportModel.orderTypes!.line!.data == [] ||
                           getReportModel.orderTypes!.line!.data!.isEmpty ||
                           getReportModel.orderTypes!.parcel!.data == null ||
