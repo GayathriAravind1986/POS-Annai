@@ -459,12 +459,14 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                 'qty': e.quantity,
               })
           .toList();
-      List<Map<String, dynamic>> finalTax = postGenerateOrderModel.order!.finalTaxes!
-          .map((e) => {
-        'name': e.name,
-        'amt': e.amount,
-      })
-          .toList();
+      List<Map<String, dynamic>> finalTax =
+          postGenerateOrderModel.order!.finalTaxes!
+              .map((e) => {
+                    'name': e.name,
+                    'amt': e.amount,
+                  })
+              .toList();
+
       String businessName = postGenerateOrderModel.invoice!.businessName ?? '';
       String address = postGenerateOrderModel.invoice!.address ?? '';
       String gst = postGenerateOrderModel.invoice!.gstNumber ?? '';
@@ -511,7 +513,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                       address: address,
                       gst: gst,
                       items: items,
-                      finalTax:finalTax,
+                      finalTax: finalTax,
                       tax: taxPercent,
                       paidBy: paymentMethod,
                       tamilTagline: '',
@@ -640,12 +642,14 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                     'qty': e.quantity,
                   })
               .toList();
-      List<Map<String, dynamic>> finalTax = updateGenerateOrderModel.order!.finalTaxes!
-          .map((e) => {
-        'name': e.name,
-        'amt': e.amount,
-      })
-          .toList();
+      List<Map<String, dynamic>> finalTax =
+          updateGenerateOrderModel.order!.finalTaxes!
+              .map((e) => {
+                    'name': e.name,
+                    'amt': e.amount,
+                  })
+              .toList();
+      debugPrint("finalTaxUpdate:$finalTax");
       String businessName =
           updateGenerateOrderModel.invoice!.businessName ?? '';
       String address = updateGenerateOrderModel.invoice!.address ?? '';
@@ -692,7 +696,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                         address: address,
                         gst: gst,
                         items: items,
-                        finalTax:finalTax,
+                        finalTax: finalTax,
                         tax: taxPercent,
                         paidBy: paymentMethod,
                         tamilTagline: '',
@@ -4638,6 +4642,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                           tipAmount: tipController.text,
                                                                                           payments: widget.isEditingOrder == true ? [] : payments,
                                                                                         );
+                                                                                        debugPrint("payloadSave:${widget.existingOrder?.data!.id}");
+                                                                                        debugPrint("payloadSave:${jsonEncode(orderPayload)}");
                                                                                         setState(() {
                                                                                           orderLoad = true;
                                                                                         });
@@ -4711,7 +4717,6 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                           "method": selectedFullPaymentMethod.toUpperCase(),
                                                                                         }
                                                                                       ];
-                                                                                      debugPrint("selectPaymentIn completedorder:${selectedFullPaymentMethod.toUpperCase()}");
                                                                                       final orderPayload = buildOrderPayload(
                                                                                         postAddToBillingModel: postAddToBillingModel,
                                                                                         tableId: selectedOrderType == OrderType.line || selectedOrderType == OrderType.ac ? tableId : null,
@@ -4731,6 +4736,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                         tipAmount: tipController.text,
                                                                                         payments: payments,
                                                                                       );
+                                                                                      debugPrint("payloadComplete:${widget.existingOrder?.data!.id}");
                                                                                       debugPrint("payloadComplete:${jsonEncode(orderPayload)}");
                                                                                       setState(() {
                                                                                         completeLoad = true;
@@ -4768,7 +4774,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                         tipAmount: tipController.text,
                                                                                         payments: payments,
                                                                                       );
-                                                                                      debugPrint("payloadComplete:${jsonEncode(orderPayload)}");
+                                                                                      debugPrint("payloadComplete<0:${widget.existingOrder?.data!.id}");
+                                                                                      debugPrint("payloadComplete<0:${jsonEncode(orderPayload)}");
                                                                                       setState(() {
                                                                                         completeLoad = true;
                                                                                       });
@@ -4812,7 +4819,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                           tipAmount: tipController.text,
                                                                                           payments: payments,
                                                                                         );
-                                                                                        debugPrint("payloadComplete:${jsonEncode(orderPayload)}");
+                                                                                        debugPrint("payloadComplete>=0:${widget.existingOrder?.data!.id}");
+                                                                                        debugPrint("payloadComplete>=0:${jsonEncode(orderPayload)}");
                                                                                         setState(() {
                                                                                           completeLoad = true;
                                                                                         });
@@ -6641,6 +6649,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                           completeLoad = true;
                                                                                         });
                                                                                         if ((widget.isEditingOrder == true && widget.existingOrder?.data!.orderStatus == "WAITLIST")) {
+                                                                                          debugPrint("editIdCompleted:${widget.existingOrder!.data!.id}");
                                                                                           context.read<FoodCategoryBloc>().add(UpdateOrder(jsonEncode(orderPayload), widget.existingOrder!.data!.id));
                                                                                         } else {
                                                                                           context.read<FoodCategoryBloc>().add(GenerateOrder(jsonEncode(orderPayload)));
@@ -7004,6 +7013,15 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
             _handle401Error();
             return true;
           }
+          if (postGenerateOrderModel.errorResponse?.statusCode == 500) {
+            showToast("${postGenerateOrderModel.message}", context,
+                color: false);
+            setState(() {
+              orderLoad = false;
+              completeLoad = false;
+            });
+            return true;
+          }
           showToast("${postGenerateOrderModel.message}", context, color: true);
           bool shouldPrintReceipt = isCompleteOrder;
           setState(() {
@@ -7030,9 +7048,11 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
               List.from(billingItems), isDiscountApplied, selectedOrderType));
           context.read<FoodCategoryBloc>().add(
               FoodProductItem(selectedCatId.toString(), searchController.text));
-          if (shouldPrintReceipt == true &&
-              postGenerateOrderModel.message != null) {
+          if (postGenerateOrderModel.message != null) {
             printGenerateOrderReceipt();
+            // if (shouldPrintReceipt == true &&
+            //     postGenerateOrderModel.message != null) {
+            //   printGenerateOrderReceipt();
           } else {
             debugPrint("Receipt not printed - shouldPrintReceipt is false");
           }
@@ -7044,8 +7064,36 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
             _handle401Error();
             return true;
           }
+          if (updateGenerateOrderModel.errorResponse?.statusCode == 500) {
+            showToast(
+                updateGenerateOrderModel.errorResponse?.message ??
+                    "Server error occurred",
+                context,
+                color: false);
+            setState(() {
+              orderLoad = false;
+              completeLoad = false;
+            });
+            return true;
+          }
+
+          // Check if there's an error response at all
+          if (updateGenerateOrderModel.errorResponse != null) {
+            showToast(
+                updateGenerateOrderModel.errorResponse?.message ??
+                    "An error occurred",
+                context,
+                color: false);
+            setState(() {
+              orderLoad = false;
+              completeLoad = false;
+            });
+            return true;
+          }
           showToast("${updateGenerateOrderModel.message}", context,
               color: true);
+          debugPrint(
+              "updateGenerateOrderModel.message:${updateGenerateOrderModel.message}");
           bool shouldPrintReceipt = isCompleteOrder;
           setState(() {
             completeLoad = false;
@@ -7069,12 +7117,14 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
               List.from(billingItems), isDiscountApplied, selectedOrderType));
           context.read<FoodCategoryBloc>().add(
               FoodProductItem(selectedCatId.toString(), searchController.text));
-          if (shouldPrintReceipt == true &&
-              updateGenerateOrderModel.message != null) {
-            printUpdateOrderReceipt();
-          } else {
-            debugPrint("Receipt not printed - shouldPrintReceipt is false");
-          }
+          //  if (updateGenerateOrderModel.message != null) {
+          printUpdateOrderReceipt();
+          // if (shouldPrintReceipt == true &&
+          //     updateGenerateOrderModel.message != null) {
+          //   printUpdateOrderReceipt();
+          // } else {
+          //   debugPrint("Receipt not printed - shouldPrintReceipt is false");
+          // }
           return true;
         }
         if (current is GetTableModel) {

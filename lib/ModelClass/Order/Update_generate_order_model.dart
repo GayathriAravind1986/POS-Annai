@@ -322,6 +322,15 @@ class Invoice {
 /// taxPrice : 19.83
 /// totalPrice : 130
 /// isAddon : false
+num? parseToNum(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value;
+  if (value is String) {
+    return double.tryParse(value);
+  }
+  return null;
+}
+
 class FinalTaxes {
   FinalTaxes({
     String? name,

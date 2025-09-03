@@ -101,6 +101,26 @@ class _ThermalReportReceiptDialogState
       DateTime.parse(widget.getReportModel.toDate.toString()),
     );
     String phone = widget.getReportModel.phone ?? '';
+    double lineAmount =
+        (widget.getReportModel.orderTypes!.line!.totalAmount ?? 0.0).toDouble();
+    int lineQty =
+        (widget.getReportModel.orderTypes!.line!.totalQty ?? 0.0).toInt();
+    double parcelAmount =
+        (widget.getReportModel.orderTypes!.parcel!.totalAmount ?? 0.0)
+            .toDouble();
+    int parcelQty =
+        (widget.getReportModel.orderTypes!.parcel!.totalQty ?? 0.0).toInt();
+    double acAmount =
+        (widget.getReportModel.orderTypes!.ac!.totalAmount ?? 0.0).toDouble();
+    int acQty = (widget.getReportModel.orderTypes!.ac!.totalQty ?? 0.0).toInt();
+    double hdAmount =
+        (widget.getReportModel.orderTypes!.hd!.totalAmount ?? 0.0).toDouble();
+    int hdQty = (widget.getReportModel.orderTypes!.hd!.totalQty ?? 0.0).toInt();
+    double swiggyAmount =
+        (widget.getReportModel.orderTypes!.swiggy!.totalAmount ?? 0.0)
+            .toDouble();
+    int swiggyQty =
+        (widget.getReportModel.orderTypes!.swiggy!.totalQty ?? 0.0).toInt();
     double totalAmount = (widget.getReportModel.finalAmount ?? 0.0).toDouble();
     int totalQty = (widget.getReportModel.finalQty ?? 0.0).toInt();
     String date = DateFormat('dd/MM/yyyy hh:mm a').format(DateTime.now());
@@ -170,6 +190,16 @@ class _ThermalReportReceiptDialogState
                           itemsSwiggy: itemsSwiggy,
                           reportDate: date,
                           takenBy: userName,
+                          lineAmount: lineAmount,
+                          lineQty: lineQty,
+                          parcelAmount: parcelAmount,
+                          parcelQty: parcelQty,
+                          acAmount: acAmount,
+                          acQty: acQty,
+                          hdAmount: hdAmount,
+                          hdQty: hdQty,
+                          swiggyAmount: swiggyAmount,
+                          swiggyQty: swiggyQty,
                           totalQuantity: totalQty,
                           totalAmount: totalAmount,
                           fromDate: fromDate,

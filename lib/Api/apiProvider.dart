@@ -611,10 +611,58 @@ class ApiProvider {
   }
 
   /// Update Generate Order - Post API Integration
+  // Future<UpdateGenerateOrderModel> updateGenerateOrderAPI(
+  //     final String orderPayloadJson, String? orderId) async {
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   var token = sharedPreferences.getString("token");
+  //   try {
+  //     var data = orderPayloadJson;
+  //     var dio = Dio();
+  //     var response = await dio.request(
+  //       '${Constants.baseUrl}api/generate-order/order/$orderId',
+  //       options: Options(
+  //         method: 'PUT',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Authorization': 'Bearer $token',
+  //         },
+  //       ),
+  //       data: data,
+  //     );
+  //     debugPrint(
+  //         "Error Response: Status ${response.statusCode}, Data: ${response.data}");
+  //     if (response.statusCode == 200 && response.data != null) {
+  //       try {
+  //         UpdateGenerateOrderModel updateGenerateOrderResponse =
+  //             UpdateGenerateOrderModel.fromJson(response.data);
+  //         debugPrint(
+  //             "Error Response: Status ${response.statusCode}, Data: ${response.data}");
+  //         return updateGenerateOrderResponse;
+  //       } catch (e) {
+  //         return UpdateGenerateOrderModel()
+  //           ..errorResponse = ErrorResponse(
+  //             message: "Failed to parse response: $e",
+  //           );
+  //       }
+  //     } else {
+  //       return UpdateGenerateOrderModel()
+  //         ..errorResponse = ErrorResponse(
+  //           message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+  //           statusCode: response.statusCode,
+  //         );
+  //     }
+  //   } on DioException catch (dioError) {
+  //     final errorResponse = handleError(dioError);
+  //     return UpdateGenerateOrderModel()..errorResponse = errorResponse;
+  //   } catch (error) {
+  //     return UpdateGenerateOrderModel()..errorResponse = handleError(error);
+  //   }
+  // }
   Future<UpdateGenerateOrderModel> updateGenerateOrderAPI(
       final String orderPayloadJson, String? orderId) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
+
     try {
       var data = orderPayloadJson;
       var dio = Dio();
@@ -629,12 +677,34 @@ class ApiProvider {
         ),
         data: data,
       );
+
+      debugPrint("Update Order Response: ${response.data}");
+      debugPrint("Status Code: ${response.statusCode}");
+
       if (response.statusCode == 200 && response.data != null) {
         try {
+          debugPrint("Message from response: ${response.data['message']}");
+
+          // Check for problematic fields before parsing
+          if (response.data['order'] != null &&
+              response.data['order']['finalTaxes'] != null) {
+            for (var tax in response.data['order']['finalTaxes']) {
+              debugPrint(
+                  "Tax amount type: ${tax['amount'].runtimeType}, value: ${tax['amount']}");
+              debugPrint(
+                  "Tax percentage type: ${tax['percentage'].runtimeType}, value: ${tax['percentage']}");
+            }
+          }
+
           UpdateGenerateOrderModel updateGenerateOrderResponse =
               UpdateGenerateOrderModel.fromJson(response.data);
+
+          debugPrint(
+              "Message after parsing: ${updateGenerateOrderResponse.message}");
           return updateGenerateOrderResponse;
-        } catch (e) {
+        } catch (e, stackTrace) {
+          debugPrint("Parse Error: $e");
+          debugPrint("Stack trace: $stackTrace");
           return UpdateGenerateOrderModel()
             ..errorResponse = ErrorResponse(
               message: "Failed to parse response: $e",
@@ -648,9 +718,11 @@ class ApiProvider {
           );
       }
     } on DioException catch (dioError) {
+      debugPrint("Dio Error: ${dioError.response?.data ?? dioError.message}");
       final errorResponse = handleError(dioError);
       return UpdateGenerateOrderModel()..errorResponse = errorResponse;
     } catch (error) {
+      debugPrint("General Error: $error");
       return UpdateGenerateOrderModel()..errorResponse = handleError(error);
     }
   }

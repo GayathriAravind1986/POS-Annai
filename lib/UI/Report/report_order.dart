@@ -545,22 +545,7 @@ class ReportViewViewState extends State<ReportViewView> {
                       alignment: Alignment.center,
                       child: const SpinKitChasingDots(
                           color: appPrimaryColor, size: 30))
-                  : getReportModel.orderTypes == null ||
-                          getReportModel.orderTypes!.line!.data == null ||
-                          getReportModel.orderTypes!.line!.data == [] ||
-                          getReportModel.orderTypes!.line!.data!.isEmpty ||
-                          getReportModel.orderTypes!.parcel!.data == null ||
-                          getReportModel.orderTypes!.parcel!.data == [] ||
-                          getReportModel.orderTypes!.parcel!.data!.isEmpty ||
-                          getReportModel.orderTypes!.ac!.data == null ||
-                          getReportModel.orderTypes!.ac!.data == [] ||
-                          getReportModel.orderTypes!.ac!.data!.isEmpty ||
-                          getReportModel.orderTypes!.swiggy!.data == null ||
-                          getReportModel.orderTypes!.swiggy!.data == [] ||
-                          getReportModel.orderTypes!.swiggy!.data!.isEmpty ||
-                          getReportModel.orderTypes!.hd!.data == null ||
-                          getReportModel.orderTypes!.hd!.data == [] ||
-                          getReportModel.orderTypes!.hd!.data!.isEmpty
+                  : getReportModel.orderTypes == null
                       ? Container(
                           padding: EdgeInsets.only(
                               top: MediaQuery.of(context).size.height * 0.3),
@@ -575,616 +560,631 @@ class ReportViewViewState extends State<ReportViewView> {
                       : Column(
                           children: [
                             if (includeProduct) ...[
-                              Text(
-                                "LINE",
-                                style: MyTextStyle.f16(
-                                  blackColor,
-                                  weight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Table(
-                                border: TableBorder.all(),
-                                columnWidths: const {
-                                  0: FixedColumnWidth(50),
-                                  1: FlexColumnWidth(),
-                                  2: FixedColumnWidth(75),
-                                  3: FixedColumnWidth(100),
-                                },
-                                children: [
-                                  const TableRow(
-                                    decoration:
-                                        BoxDecoration(color: appPrimaryColor),
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("S.No",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Product Name",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Quantity",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Amount",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
+                              if (getReportModel
+                                  .orderTypes!.line!.data!.isNotEmpty) ...[
+                                Text(
+                                  "LINE",
+                                  style: MyTextStyle.f16(
+                                    blackColor,
+                                    weight: FontWeight.w500,
                                   ),
-                                  ...List.generate(
-                                      getReportModel.orderTypes!.line!.data!
-                                          .length, (index) {
-                                    final item = getReportModel
-                                        .orderTypes!.line!.data![index];
-                                    return TableRow(
+                                ),
+                                const SizedBox(height: 16),
+                                Table(
+                                  border: TableBorder.all(),
+                                  columnWidths: const {
+                                    0: FixedColumnWidth(50),
+                                    1: FlexColumnWidth(),
+                                    2: FixedColumnWidth(75),
+                                    3: FixedColumnWidth(100),
+                                  },
+                                  children: [
+                                    const TableRow(
+                                      decoration:
+                                          BoxDecoration(color: appPrimaryColor),
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text("${index + 1}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("S.No",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Text(item.productName ?? ""),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Product Name",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(
-                                                  "${item.totalQty ?? ""}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Quantity",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(item.totalAmount
-                                                      ?.toStringAsFixed(2) ??
-                                                  "")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Amount",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                       ],
-                                    );
-                                  }),
-                                  TableRow(
-                                    decoration:
-                                        const BoxDecoration(color: whiteColor),
-                                    children: [
-                                      const SizedBox(), // empty under S.No
-                                      const Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Line Total",
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "${getReportModel.orderTypes!.line!.totalQty}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                    ),
+                                    ...List.generate(
+                                        getReportModel.orderTypes!.line!.data!
+                                            .length, (index) {
+                                      final item = getReportModel
+                                          .orderTypes!.line!.data![index];
+                                      return TableRow(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text("${index + 1}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Text(item.productName ?? ""),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(
+                                                    "${item.totalQty ?? ""}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(item.totalAmount
+                                                        ?.toStringAsFixed(2) ??
+                                                    "")),
+                                          ),
+                                        ],
+                                      );
+                                    }),
+                                    TableRow(
+                                      decoration: const BoxDecoration(
+                                          color: whiteColor),
+                                      children: [
+                                        const SizedBox(), // empty under S.No
+                                        const Padding(
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Line Total",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "${getReportModel.orderTypes!.line!.totalQty}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "₹ ${getReportModel.orderTypes!.line!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "₹ ${getReportModel.orderTypes!.line!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "PARCEL",
-                                style: MyTextStyle.f16(
-                                  blackColor,
-                                  weight: FontWeight.w500,
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              Table(
-                                border: TableBorder.all(),
-                                columnWidths: const {
-                                  0: FixedColumnWidth(50),
-                                  1: FlexColumnWidth(),
-                                  2: FixedColumnWidth(75),
-                                  3: FixedColumnWidth(100),
-                                },
-                                children: [
-                                  const TableRow(
-                                    decoration:
-                                        BoxDecoration(color: appPrimaryColor),
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("S.No",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Product Name",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Quantity",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Amount",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
+                                const SizedBox(height: 16),
+                              ],
+                              if (getReportModel
+                                  .orderTypes!.parcel!.data!.isNotEmpty) ...[
+                                Text(
+                                  "PARCEL",
+                                  style: MyTextStyle.f16(
+                                    blackColor,
+                                    weight: FontWeight.w500,
                                   ),
-                                  ...List.generate(
-                                      getReportModel.orderTypes!.parcel!.data!
-                                          .length, (index) {
-                                    final item = getReportModel
-                                        .orderTypes!.parcel!.data![index];
-                                    return TableRow(
+                                ),
+                                const SizedBox(height: 16),
+                                Table(
+                                  border: TableBorder.all(),
+                                  columnWidths: const {
+                                    0: FixedColumnWidth(50),
+                                    1: FlexColumnWidth(),
+                                    2: FixedColumnWidth(75),
+                                    3: FixedColumnWidth(100),
+                                  },
+                                  children: [
+                                    const TableRow(
+                                      decoration:
+                                          BoxDecoration(color: appPrimaryColor),
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text("${index + 1}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("S.No",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Text(item.productName ?? ""),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Product Name",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(
-                                                  "${item.totalQty ?? ""}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Quantity",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(item.totalAmount
-                                                      ?.toStringAsFixed(2) ??
-                                                  "")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Amount",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                       ],
-                                    );
-                                  }),
-                                  TableRow(
-                                    decoration:
-                                        const BoxDecoration(color: whiteColor),
-                                    children: [
-                                      const SizedBox(), // empty under S.No
-                                      const Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Parcel Total",
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "${getReportModel.orderTypes!.parcel!.totalQty}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                    ),
+                                    ...List.generate(
+                                        getReportModel.orderTypes!.parcel!.data!
+                                            .length, (index) {
+                                      final item = getReportModel
+                                          .orderTypes!.parcel!.data![index];
+                                      return TableRow(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text("${index + 1}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Text(item.productName ?? ""),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(
+                                                    "${item.totalQty ?? ""}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(item.totalAmount
+                                                        ?.toStringAsFixed(2) ??
+                                                    "")),
+                                          ),
+                                        ],
+                                      );
+                                    }),
+                                    TableRow(
+                                      decoration: const BoxDecoration(
+                                          color: whiteColor),
+                                      children: [
+                                        const SizedBox(), // empty under S.No
+                                        const Padding(
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Parcel Total",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "${getReportModel.orderTypes!.parcel!.totalQty}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "₹ ${getReportModel.orderTypes!.parcel!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "₹ ${getReportModel.orderTypes!.parcel!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "AC",
-                                style: MyTextStyle.f16(
-                                  blackColor,
-                                  weight: FontWeight.w500,
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              Table(
-                                border: TableBorder.all(),
-                                columnWidths: const {
-                                  0: FixedColumnWidth(50),
-                                  1: FlexColumnWidth(),
-                                  2: FixedColumnWidth(75),
-                                  3: FixedColumnWidth(100),
-                                },
-                                children: [
-                                  const TableRow(
-                                    decoration:
-                                        BoxDecoration(color: appPrimaryColor),
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("S.No",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Product Name",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Quantity",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Amount",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
+                                const SizedBox(height: 16),
+                              ],
+                              if (getReportModel
+                                  .orderTypes!.ac!.data!.isNotEmpty) ...[
+                                Text(
+                                  "AC",
+                                  style: MyTextStyle.f16(
+                                    blackColor,
+                                    weight: FontWeight.w500,
                                   ),
-                                  ...List.generate(
-                                      getReportModel.orderTypes!.ac!.data!
-                                          .length, (index) {
-                                    final item = getReportModel
-                                        .orderTypes!.ac!.data![index];
-                                    return TableRow(
+                                ),
+                                const SizedBox(height: 16),
+                                Table(
+                                  border: TableBorder.all(),
+                                  columnWidths: const {
+                                    0: FixedColumnWidth(50),
+                                    1: FlexColumnWidth(),
+                                    2: FixedColumnWidth(75),
+                                    3: FixedColumnWidth(100),
+                                  },
+                                  children: [
+                                    const TableRow(
+                                      decoration:
+                                          BoxDecoration(color: appPrimaryColor),
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text("${index + 1}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("S.No",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Text(item.productName ?? ""),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Product Name",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(
-                                                  "${item.totalQty ?? ""}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Quantity",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(item.totalAmount
-                                                      ?.toStringAsFixed(2) ??
-                                                  "")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Amount",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                       ],
-                                    );
-                                  }),
-                                  TableRow(
-                                    decoration:
-                                        const BoxDecoration(color: whiteColor),
-                                    children: [
-                                      const SizedBox(), // empty under S.No
-                                      const Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("AC Total",
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "${getReportModel.orderTypes!.ac!.totalQty}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                    ),
+                                    ...List.generate(
+                                        getReportModel.orderTypes!.ac!.data!
+                                            .length, (index) {
+                                      final item = getReportModel
+                                          .orderTypes!.ac!.data![index];
+                                      return TableRow(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text("${index + 1}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Text(item.productName ?? ""),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(
+                                                    "${item.totalQty ?? ""}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(item.totalAmount
+                                                        ?.toStringAsFixed(2) ??
+                                                    "")),
+                                          ),
+                                        ],
+                                      );
+                                    }),
+                                    TableRow(
+                                      decoration: const BoxDecoration(
+                                          color: whiteColor),
+                                      children: [
+                                        const SizedBox(), // empty under S.No
+                                        const Padding(
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("AC Total",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "${getReportModel.orderTypes!.ac!.totalQty}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "₹ ${getReportModel.orderTypes!.ac!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "₹ ${getReportModel.orderTypes!.ac!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "HD",
-                                style: MyTextStyle.f16(
-                                  blackColor,
-                                  weight: FontWeight.w500,
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              Table(
-                                border: TableBorder.all(),
-                                columnWidths: const {
-                                  0: FixedColumnWidth(50),
-                                  1: FlexColumnWidth(),
-                                  2: FixedColumnWidth(75),
-                                  3: FixedColumnWidth(100),
-                                },
-                                children: [
-                                  const TableRow(
-                                    decoration:
-                                        BoxDecoration(color: appPrimaryColor),
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("S.No",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Product Name",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Quantity",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Amount",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
+                                const SizedBox(height: 16),
+                              ],
+                              if (getReportModel
+                                  .orderTypes!.hd!.data!.isNotEmpty) ...[
+                                Text(
+                                  "HD",
+                                  style: MyTextStyle.f16(
+                                    blackColor,
+                                    weight: FontWeight.w500,
                                   ),
-                                  ...List.generate(
-                                      getReportModel.orderTypes!.hd!.data!
-                                          .length, (index) {
-                                    final item = getReportModel
-                                        .orderTypes!.hd!.data![index];
-                                    return TableRow(
+                                ),
+                                const SizedBox(height: 16),
+                                Table(
+                                  border: TableBorder.all(),
+                                  columnWidths: const {
+                                    0: FixedColumnWidth(50),
+                                    1: FlexColumnWidth(),
+                                    2: FixedColumnWidth(75),
+                                    3: FixedColumnWidth(100),
+                                  },
+                                  children: [
+                                    const TableRow(
+                                      decoration:
+                                          BoxDecoration(color: appPrimaryColor),
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text("${index + 1}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("S.No",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Text(item.productName ?? ""),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Product Name",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(
-                                                  "${item.totalQty ?? ""}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Quantity",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(item.totalAmount
-                                                      ?.toStringAsFixed(2) ??
-                                                  "")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Amount",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                       ],
-                                    );
-                                  }),
-                                  TableRow(
-                                    decoration:
-                                        const BoxDecoration(color: whiteColor),
-                                    children: [
-                                      const SizedBox(), // empty under S.No
-                                      const Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("HD Total",
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "${getReportModel.orderTypes!.hd!.totalQty}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                    ),
+                                    ...List.generate(
+                                        getReportModel.orderTypes!.hd!.data!
+                                            .length, (index) {
+                                      final item = getReportModel
+                                          .orderTypes!.hd!.data![index];
+                                      return TableRow(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text("${index + 1}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Text(item.productName ?? ""),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(
+                                                    "${item.totalQty ?? ""}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(item.totalAmount
+                                                        ?.toStringAsFixed(2) ??
+                                                    "")),
+                                          ),
+                                        ],
+                                      );
+                                    }),
+                                    TableRow(
+                                      decoration: const BoxDecoration(
+                                          color: whiteColor),
+                                      children: [
+                                        const SizedBox(), // empty under S.No
+                                        const Padding(
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("HD Total",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "${getReportModel.orderTypes!.hd!.totalQty}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "₹ ${getReportModel.orderTypes!.hd!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "₹ ${getReportModel.orderTypes!.hd!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "SWIGGY",
-                                style: MyTextStyle.f16(
-                                  blackColor,
-                                  weight: FontWeight.w500,
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              Table(
-                                border: TableBorder.all(),
-                                columnWidths: const {
-                                  0: FixedColumnWidth(50),
-                                  1: FlexColumnWidth(),
-                                  2: FixedColumnWidth(75),
-                                  3: FixedColumnWidth(100),
-                                },
-                                children: [
-                                  const TableRow(
-                                    decoration:
-                                        BoxDecoration(color: appPrimaryColor),
-                                    children: [
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("S.No",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Product Name",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Quantity",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Amount",
-                                            style: TextStyle(
-                                                color: whiteColor,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
+                                const SizedBox(height: 16),
+                              ],
+                              if (getReportModel
+                                  .orderTypes!.swiggy!.data!.isNotEmpty) ...[
+                                Text(
+                                  "SWIGGY",
+                                  style: MyTextStyle.f16(
+                                    blackColor,
+                                    weight: FontWeight.w500,
                                   ),
-                                  ...List.generate(
-                                      getReportModel.orderTypes!.swiggy!.data!
-                                          .length, (index) {
-                                    final item = getReportModel
-                                        .orderTypes!.swiggy!.data![index];
-                                    return TableRow(
+                                ),
+                                const SizedBox(height: 16),
+                                Table(
+                                  border: TableBorder.all(),
+                                  columnWidths: const {
+                                    0: FixedColumnWidth(50),
+                                    1: FlexColumnWidth(),
+                                    2: FixedColumnWidth(75),
+                                    3: FixedColumnWidth(100),
+                                  },
+                                  children: [
+                                    const TableRow(
+                                      decoration:
+                                          BoxDecoration(color: appPrimaryColor),
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text("${index + 1}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("S.No",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Text(item.productName ?? ""),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Product Name",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(
-                                                  "${item.totalQty ?? ""}")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Quantity",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Center(
-                                              child: Text(item.totalAmount
-                                                      ?.toStringAsFixed(2) ??
-                                                  "")),
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Amount",
+                                              style: TextStyle(
+                                                  color: whiteColor,
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                       ],
-                                    );
-                                  }),
-                                  TableRow(
-                                    decoration:
-                                        const BoxDecoration(color: whiteColor),
-                                    children: [
-                                      const SizedBox(), // empty under S.No
-                                      const Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Text("Swiggy Total",
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "${getReportModel.orderTypes!.swiggy!.totalQty}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                    ),
+                                    ...List.generate(
+                                        getReportModel.orderTypes!.swiggy!.data!
+                                            .length, (index) {
+                                      final item = getReportModel
+                                          .orderTypes!.swiggy!.data![index];
+                                      return TableRow(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text("${index + 1}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Text(item.productName ?? ""),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(
+                                                    "${item.totalQty ?? ""}")),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Center(
+                                                child: Text(item.totalAmount
+                                                        ?.toStringAsFixed(2) ??
+                                                    "")),
+                                          ),
+                                        ],
+                                      );
+                                    }),
+                                    TableRow(
+                                      decoration: const BoxDecoration(
+                                          color: whiteColor),
+                                      children: [
+                                        const SizedBox(), // empty under S.No
+                                        const Padding(
+                                          padding: EdgeInsets.all(8),
+                                          child: Text("Swiggy Total",
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "${getReportModel.orderTypes!.swiggy!.totalQty}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Center(
-                                          child: Text(
-                                            "₹ ${getReportModel.orderTypes!.swiggy!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Center(
+                                            child: Text(
+                                              "₹ ${getReportModel.orderTypes!.swiggy!.totalAmount?.toStringAsFixed(2) ?? '0.00'}",
+                                              style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                              ],
                             ],
 
                             // ✅ Always show totals
