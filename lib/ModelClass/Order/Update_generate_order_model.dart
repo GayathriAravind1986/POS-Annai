@@ -322,14 +322,6 @@ class Invoice {
 /// taxPrice : 19.83
 /// totalPrice : 130
 /// isAddon : false
-num? parseToNum(dynamic value) {
-  if (value == null) return null;
-  if (value is num) return value;
-  if (value is String) {
-    return double.tryParse(value);
-  }
-  return null;
-}
 
 class FinalTaxes {
   FinalTaxes({
@@ -345,7 +337,13 @@ class FinalTaxes {
   FinalTaxes.fromJson(dynamic json) {
     _name = json['name'];
     _percentage = json['percentage'];
-    _amount = json['amount'];
+    if (json['amount'] != null) {
+      if (json['amount'] is String) {
+        _amount = double.tryParse(json['amount']) ?? 0.0;
+      } else {
+        _amount = json['amount'];
+      }
+    }
   }
   String? _name;
   num? _percentage;

@@ -642,14 +642,19 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                     'qty': e.quantity,
                   })
               .toList();
+      double _safeConvertToDouble(dynamic value) {
+        if (value == null) return 0.0;
+        if (value is num) return value.toDouble();
+        if (value is String) return double.tryParse(value) ?? 0.0;
+        return 0.0;
+      }
       List<Map<String, dynamic>> finalTax =
-          updateGenerateOrderModel.order!.finalTaxes!
+          updateGenerateOrderModel.invoice!.finalTaxes!
               .map((e) => {
                     'name': e.name,
-                    'amt': e.amount,
+                    'amt': double.parse(e.amount.toString()),
                   })
               .toList();
-      debugPrint("finalTaxUpdate:$finalTax");
       String businessName =
           updateGenerateOrderModel.invoice!.businessName ?? '';
       String address = updateGenerateOrderModel.invoice!.address ?? '';
@@ -7022,6 +7027,18 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
             });
             return true;
           }
+          if (postGenerateOrderModel.errorResponse != null) {
+            showToast(
+                postGenerateOrderModel.errorResponse?.message ??
+                    "An error occurred",
+                context,
+                color: false);
+            setState(() {
+              orderLoad = false;
+              completeLoad = false;
+            });
+            return true;
+          }
           showToast("${postGenerateOrderModel.message}", context, color: true);
           bool shouldPrintReceipt = isCompleteOrder;
           setState(() {
@@ -7076,8 +7093,6 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
             });
             return true;
           }
-
-          // Check if there's an error response at all
           if (updateGenerateOrderModel.errorResponse != null) {
             showToast(
                 updateGenerateOrderModel.errorResponse?.message ??
@@ -7117,14 +7132,14 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
               List.from(billingItems), isDiscountApplied, selectedOrderType));
           context.read<FoodCategoryBloc>().add(
               FoodProductItem(selectedCatId.toString(), searchController.text));
-          //  if (updateGenerateOrderModel.message != null) {
+            if (updateGenerateOrderModel.message != null) {
           printUpdateOrderReceipt();
           // if (shouldPrintReceipt == true &&
           //     updateGenerateOrderModel.message != null) {
           //   printUpdateOrderReceipt();
-          // } else {
-          //   debugPrint("Receipt not printed - shouldPrintReceipt is false");
-          // }
+          } else {
+            debugPrint("Receipt not printed - shouldPrintReceipt is false");
+          }
           return true;
         }
         if (current is GetTableModel) {
