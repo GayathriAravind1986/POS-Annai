@@ -170,6 +170,24 @@ class CustomAppBarViewState extends State<CustomAppBarView> {
                           ),
                         )
                       : Container(),
+                  SizedBox(width: 16),
+                  TextButton.icon(
+                    onPressed: () => widget.onTabSelected(4),
+                    icon: Icon(
+                      Icons.note_alt_outlined,
+                      size: 30,
+                      color: widget.selectedIndex == 4
+                          ? appPrimaryColor
+                          : greyColor,
+                    ),
+                    label: Text(
+                      "Products",
+                      style: MyTextStyle.f16(
+                        weight: FontWeight.bold,
+                        widget.selectedIndex == 4 ? appPrimaryColor : greyColor,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],

@@ -5,11 +5,13 @@ import 'package:simple/Bloc/Category/category_bloc.dart';
 import 'package:simple/Bloc/Report/report_bloc.dart';
 import 'package:simple/Bloc/StockIn/stock_in_bloc.dart';
 import 'package:simple/Bloc/demo/demo_bloc.dart';
+import 'package:simple/Bloc/Products/product_category_bloc.dart';
 import 'package:simple/ModelClass/Order/Get_view_order_model.dart';
 import 'package:simple/UI/CustomAppBar/custom_appbar.dart';
 import 'package:simple/UI/Home_screen/home_screen.dart';
 import 'package:simple/UI/Order/order_list.dart';
 import 'package:simple/UI/Order/order_tab_page.dart';
+import 'package:simple/UI/Products/product_Category.dart';
 import 'package:simple/UI/StockIn/stock_in.dart';
 import '../Report/report_order.dart';
 
@@ -60,11 +62,14 @@ class _DashBoardState extends State<DashBoard> {
       GlobalKey<StockViewViewState>();
   final GlobalKey<OrderTabViewViewState> orderTabKey =
       GlobalKey<OrderTabViewViewState>();
+  final GlobalKey<ProductViewViewState> productKey =
+      GlobalKey<ProductViewViewState>();
   int selectedIndex = 0;
   bool orderLoad = false;
   bool hasRefreshedOrder = false;
   bool hasRefreshedReport = false;
   bool hasRefreshedStock = false;
+  bool hasRefreshedProduct = false;
 
   @override
   void initState() {
@@ -117,6 +122,15 @@ class _DashBoardState extends State<DashBoard> {
     }
   }
 
+  void _refreshProduct() {
+    final productKeyState = productKey.currentState;
+    if (productKeyState != null) {
+      productKeyState.refreshProduct();
+    } else {
+      debugPrint("reportKeyState is NULL — check if key is assigned properly");
+    }
+  }
+
   Widget mainContainer() {
     return SafeArea(
       child: Scaffold(
@@ -131,6 +145,7 @@ class _DashBoardState extends State<DashBoard> {
               hasRefreshedOrder = true;
               hasRefreshedReport = false;
               hasRefreshedStock = false;
+              hasRefreshedProduct = false;
               WidgetsBinding.instance
                   .addPostFrameCallback((_) => _refreshHome());
             }
@@ -138,6 +153,7 @@ class _DashBoardState extends State<DashBoard> {
               hasRefreshedOrder = false;
               hasRefreshedReport = false;
               hasRefreshedStock = false;
+              hasRefreshedProduct = false;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _refreshOrders();
                 _resetOrderTab();
@@ -147,6 +163,7 @@ class _DashBoardState extends State<DashBoard> {
               hasRefreshedOrder = false;
               hasRefreshedReport = true;
               hasRefreshedStock = false;
+              hasRefreshedProduct = false;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _refreshReport();
               });
@@ -155,8 +172,18 @@ class _DashBoardState extends State<DashBoard> {
               hasRefreshedOrder = false;
               hasRefreshedReport = false;
               hasRefreshedStock = true;
+              hasRefreshedProduct = false;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 _refreshStock();
+              });
+            }
+            if (index == 4 && !hasRefreshedProduct) {
+              hasRefreshedOrder = false;
+              hasRefreshedReport = false;
+              hasRefreshedStock = false;
+              hasRefreshedProduct = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _refreshProduct();
               });
             }
           },
@@ -216,6 +243,20 @@ class _DashBoardState extends State<DashBoard> {
                     child: StockView(
                       key: stockKey,
                       hasRefreshedStock: hasRefreshedStock,
+                    ),
+                  ),
+            hasRefreshedProduct == true
+                ? BlocProvider(
+                    create: (_) => ProductCategoryBloc(),
+                    child: ProductViewView(
+                      key: productKey,
+                      hasRefreshedProduct: hasRefreshedProduct,
+                    ))
+                : BlocProvider(
+                    create: (_) => ProductCategoryBloc(),
+                    child: ProductView(
+                      key: productKey,
+                      hasRefreshedProduct: hasRefreshedProduct,
                     ),
                   ),
           ],

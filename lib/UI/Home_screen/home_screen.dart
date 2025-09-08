@@ -129,6 +129,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
   final TextEditingController ipController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   TextEditingController searchController = TextEditingController();
+  TextEditingController searchProdIdController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   Map<String, TextEditingController> quantityControllers = {};
 
@@ -816,9 +817,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
   void refreshHome() {
     if (!mounted || !context.mounted) return;
     context.read<FoodCategoryBloc>().add(FoodCategory());
-    context
-        .read<FoodCategoryBloc>()
-        .add(FoodProductItem(selectedCatId.toString(), searchController.text));
+    context.read<FoodCategoryBloc>().add(FoodProductItem(
+        selectedCatId.toString(),
+        searchController.text,
+        searchProdIdController.text));
     setState(() {
       categoryLoad = true;
       resetCartState();
@@ -959,8 +961,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
       });
     } else {
       context.read<FoodCategoryBloc>().add(FoodCategory());
-      context.read<FoodCategoryBloc>().add(
-          FoodProductItem(selectedCatId.toString(), searchController.text));
+      context.read<FoodCategoryBloc>().add(FoodProductItem(
+          selectedCatId.toString(),
+          searchController.text,
+          searchProdIdController.text));
       getDeviceInfo();
     }
     context.read<FoodCategoryBloc>().add(TableDine());
@@ -1101,7 +1105,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                           Text("Choose Category",
                                               style: MyTextStyle.f18(blackColor,
                                                   weight: FontWeight.bold)),
-                                          SizedBox(width: size.width * 0.15),
+                                          SizedBox(width: size.width * 0.05),
                                           Expanded(
                                             child: SizedBox(
                                               width: size.width * 0.25,
@@ -1137,6 +1141,55 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                               selectedCatId
                                                                   .toString(),
                                                               searchController
+                                                                  .text,
+                                                              searchProdIdController
+                                                                  .text),
+                                                        );
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          horizontalSpace(width: 10),
+                                          Expanded(
+                                            child: SizedBox(
+                                              width: size.width * 0.25,
+                                              child: TextField(
+                                                controller:
+                                                    searchProdIdController,
+                                                decoration: InputDecoration(
+                                                  hintText:
+                                                      'Search product code',
+                                                  prefixIcon:
+                                                      Icon(Icons.search),
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          horizontal: 16),
+                                                  border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              30)),
+                                                ),
+                                                onChanged: (value) {
+                                                  searchProdIdController
+                                                    ..text = (value)
+                                                    ..selection =
+                                                        TextSelection.collapsed(
+                                                            offset:
+                                                                searchProdIdController
+                                                                    .text
+                                                                    .length);
+                                                  setState(() {
+                                                    context
+                                                        .read<
+                                                            FoodCategoryBloc>()
+                                                        .add(
+                                                          FoodProductItem(
+                                                              selectedCatId
+                                                                  .toString(),
+                                                              searchController
+                                                                  .text,
+                                                              searchProdIdController
                                                                   .text),
                                                         );
                                                   });
@@ -1146,6 +1199,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                           ),
                                           IconButton(
                                             onPressed: () {
+                                              setState(() {
+                                                searchController.clear();
+                                                searchProdIdController.clear();
+                                              });
                                               context
                                                   .read<FoodCategoryBloc>()
                                                   .add(FoodCategory());
@@ -1153,7 +1210,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                   .read<FoodCategoryBloc>()
                                                   .add(FoodProductItem(
                                                       selectedCatId.toString(),
-                                                      searchController.text));
+                                                      searchController.text,
+                                                      searchProdIdController
+                                                          .text));
                                             },
                                             icon: const Icon(Icons.refresh),
                                           ),
@@ -1197,6 +1256,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                 selectedCatId
                                                                     .toString(),
                                                                 searchController
+                                                                    .text,
+                                                                searchProdIdController
                                                                     .text));
                                                       } else {
                                                         context
@@ -1207,6 +1268,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                   selectedCatId
                                                                       .toString(),
                                                                   searchController
+                                                                      .text,
+                                                                  searchProdIdController
                                                                       .text),
                                                             );
                                                       }
@@ -5357,8 +5420,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
           context.read<FoodCategoryBloc>().add(AddToBilling(
               List.from(billingItems), isDiscountApplied, selectedOrderType));
-          context.read<FoodCategoryBloc>().add(
-              FoodProductItem(selectedCatId.toString(), searchController.text));
+          context.read<FoodCategoryBloc>().add(FoodProductItem(
+              selectedCatId.toString(),
+              searchController.text,
+              searchProdIdController.text));
           if (postGenerateOrderModel.message != null) {
             printGenerateOrderReceipt();
             // if (shouldPrintReceipt == true &&
@@ -5424,8 +5489,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
           });
           context.read<FoodCategoryBloc>().add(AddToBilling(
               List.from(billingItems), isDiscountApplied, selectedOrderType));
-          context.read<FoodCategoryBloc>().add(
-              FoodProductItem(selectedCatId.toString(), searchController.text));
+          context.read<FoodCategoryBloc>().add(FoodProductItem(
+              selectedCatId.toString(),
+              searchController.text,
+              searchProdIdController.text));
           if (updateGenerateOrderModel.message != null) {
             printUpdateOrderReceipt();
             // if (shouldPrintReceipt == true &&

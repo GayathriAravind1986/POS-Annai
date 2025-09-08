@@ -599,17 +599,23 @@ class ReportViewViewState extends State<ReportViewView> {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Quantity",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Quantity",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Amount",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Amount",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -724,17 +730,23 @@ class ReportViewViewState extends State<ReportViewView> {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Quantity",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Quantity",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Amount",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Amount",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -849,17 +861,23 @@ class ReportViewViewState extends State<ReportViewView> {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Quantity",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Quantity",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Amount",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Amount",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -974,17 +992,23 @@ class ReportViewViewState extends State<ReportViewView> {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Quantity",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Quantity",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Amount",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Amount",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1099,17 +1123,23 @@ class ReportViewViewState extends State<ReportViewView> {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Quantity",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Quantity",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.all(8),
-                                          child: Text("Amount",
-                                              style: TextStyle(
-                                                  color: whiteColor,
-                                                  fontWeight: FontWeight.bold)),
+                                          child: Center(
+                                            child: Text("Amount",
+                                                style: TextStyle(
+                                                    color: whiteColor,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ),
                                         ),
                                       ],
                                     ),

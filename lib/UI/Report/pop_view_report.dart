@@ -93,6 +93,8 @@ class _ThermalReportReceiptDialogState
     String userName = widget.getReportModel.userName ?? '';
     String address = widget.getReportModel.address ?? '';
     String location = widget.getReportModel.location ?? '';
+    String tableName = widget.getReportModel.tableName ?? '';
+    String waiterName = widget.getReportModel.waiterName ?? '';
     String fromDate = DateFormat('dd/MM/yyyy').format(
       DateTime.parse(widget.getReportModel.fromDate.toString()),
     );
@@ -190,6 +192,8 @@ class _ThermalReportReceiptDialogState
                           itemsSwiggy: itemsSwiggy,
                           reportDate: date,
                           takenBy: userName,
+                          tableName: tableName,
+                          waiterName: waiterName,
                           lineAmount: lineAmount,
                           lineQty: lineQty,
                           parcelAmount: parcelAmount,

@@ -12,6 +12,7 @@ import 'package:simple/ModelClass/Order/Get_view_order_model.dart';
 import 'package:simple/ModelClass/Order/Post_generate_order_model.dart';
 import 'package:simple/ModelClass/Order/Update_generate_order_model.dart';
 import 'package:simple/ModelClass/Order/get_order_list_today_model.dart';
+import 'package:simple/ModelClass/Products/get_products_cat_model.dart';
 import 'package:simple/ModelClass/Report/Get_report_with_ordertype_model.dart';
 import 'package:simple/ModelClass/ShopDetails/getStockMaintanencesModel.dart';
 import 'package:simple/ModelClass/StockIn/getLocationModel.dart';
@@ -91,8 +92,6 @@ class ApiProvider {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
     var userId = sharedPreferences.getString("userId");
-    debugPrint("userId:$userId");
-
     try {
       var dio = Dio();
       var response = await dio.request(
@@ -134,15 +133,13 @@ class ApiProvider {
 
   /// product - Fetch API Integration
   Future<GetProductByCatIdModel> getProductItemAPI(
-      String? catId, String? searchKey) async {
+      String? catId, String? searchKey, String? searchCode) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
-    debugPrint(
-        "baseUrlProdOrder:${Constants.baseUrl}api/products/pos/category-products?filter=false&categoryId=$catId&search=$searchKey");
     try {
       var dio = Dio();
       var response = await dio.request(
-        '${Constants.baseUrl}api/products/pos/category-products?filter=false&categoryId=$catId&search=$searchKey',
+        '${Constants.baseUrl}api/products/pos/category-products?filter=false&categoryId=$catId&search=$searchKey&searchcode=$searchCode',
         options: Options(
           method: 'GET',
           headers: {
@@ -173,6 +170,49 @@ class ApiProvider {
       return GetProductByCatIdModel()..errorResponse = errorResponse;
     } catch (error) {
       return GetProductByCatIdModel()..errorResponse = handleError(error);
+    }
+  }
+
+  /// products-Category - Fetch API Integration
+  Future<GetProductsCatModel> getProductsCatAPI(String? catId) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+    debugPrint(
+        "baseUrlProdOrder:${Constants.baseUrl}api/products/pos/category-products-with-category?filter=false&categoryId=$catId");
+    try {
+      var dio = Dio();
+      var response = await dio.request(
+        '${Constants.baseUrl}api/products/pos/category-products-with-category?filter=false&categoryId=$catId',
+        options: Options(
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data['success'] == true) {
+          GetProductsCatModel getProductsCatResponse =
+              GetProductsCatModel.fromJson(response.data);
+          return getProductsCatResponse;
+        }
+      } else {
+        return GetProductsCatModel()
+          ..errorResponse = ErrorResponse(
+            message: "Error: ${response.data['message'] ?? 'Unknown error'}",
+            statusCode: response.statusCode,
+          );
+      }
+      return GetProductsCatModel()
+        ..errorResponse = ErrorResponse(
+          message: "Unexpected error occurred.",
+          statusCode: 500,
+        );
+    } on DioException catch (dioError) {
+      final errorResponse = handleError(dioError);
+      return GetProductsCatModel()..errorResponse = errorResponse;
+    } catch (error) {
+      return GetProductsCatModel()..errorResponse = handleError(error);
     }
   }
 

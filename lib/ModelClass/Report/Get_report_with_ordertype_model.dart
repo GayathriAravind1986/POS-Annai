@@ -35,6 +35,8 @@ class GetReportModel {
     String? gstNumber,
     String? printType,
     String? currencySymbol,
+    String? tableName,
+    String? waiterName,
     ErrorResponse? errorResponse,
   }) {
     _success = success;
@@ -53,6 +55,8 @@ class GetReportModel {
     _gstNumber = gstNumber;
     _printType = printType;
     _currencySymbol = currencySymbol;
+    _tableName = tableName;
+    _waiterName = waiterName;
   }
 
   GetReportModel.fromJson(dynamic json) {
@@ -74,6 +78,8 @@ class GetReportModel {
     _gstNumber = json['gstNumber'];
     _printType = json['printType'];
     _currencySymbol = json['currencySymbol'];
+    _tableName = json['table_name'];
+    _waiterName = json['waiter_name'];
     if (json['errors'] != null && json['errors'] is Map<String, dynamic>) {
       errorResponse = ErrorResponse.fromJson(json['errors']);
     } else {
@@ -96,6 +102,8 @@ class GetReportModel {
   String? _gstNumber;
   String? _printType;
   String? _currencySymbol;
+  String? _tableName;
+  String? _waiterName;
   ErrorResponse? errorResponse;
   GetReportModel copyWith({
     bool? success,
@@ -114,6 +122,8 @@ class GetReportModel {
     String? gstNumber,
     String? printType,
     String? currencySymbol,
+    String? tableName,
+    String? waiterName,
   }) =>
       GetReportModel(
         success: success ?? _success,
@@ -132,6 +142,8 @@ class GetReportModel {
         gstNumber: gstNumber ?? _gstNumber,
         printType: printType ?? _printType,
         currencySymbol: currencySymbol ?? _currencySymbol,
+        tableName: tableName ?? _tableName,
+        waiterName: waiterName ?? _waiterName,
       );
   bool? get success => _success;
   OrderTypes? get orderTypes => _orderTypes;
@@ -149,6 +161,8 @@ class GetReportModel {
   String? get gstNumber => _gstNumber;
   String? get printType => _printType;
   String? get currencySymbol => _currencySymbol;
+  String? get tableName => _tableName;
+  String? get waiterName => _waiterName;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -170,6 +184,8 @@ class GetReportModel {
     map['gstNumber'] = _gstNumber;
     map['printType'] = _printType;
     map['currencySymbol'] = _currencySymbol;
+    map['table_name'] = _tableName;
+    map['waiter_name'] = _waiterName;
     if (errorResponse != null) {
       map['errors'] = errorResponse!.toJson();
     }
