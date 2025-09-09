@@ -407,24 +407,24 @@ class ProductViewViewState extends State<ProductViewView> {
                                 ),
                               )
                               .toList()),
-              if (getProductsCatModel.data != null)
-                Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      showDialog(
-                        context: context,
-                        builder: (context) =>
-                            ThermalProductsReceiptDialog(getProductsCatModel),
-                      );
-                    },
-                    icon: const Icon(Icons.print),
-                    label: const Text("Print"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: greenColor,
-                      foregroundColor: whiteColor,
-                    ),
-                  ),
-                ),
+              // if (getProductsCatModel.data != null)
+              //   Center(
+              //     child: ElevatedButton.icon(
+              //       onPressed: () async {
+              //         showDialog(
+              //           context: context,
+              //           builder: (context) =>
+              //               ThermalProductsReceiptDialog(getProductsCatModel),
+              //         );
+              //       },
+              //       icon: const Icon(Icons.print),
+              //       label: const Text("Print"),
+              //       style: ElevatedButton.styleFrom(
+              //         backgroundColor: greenColor,
+              //         foregroundColor: whiteColor,
+              //       ),
+              //     ),
+              //   ),
             ],
           ),
         ),

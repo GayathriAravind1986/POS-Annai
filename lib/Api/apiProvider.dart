@@ -177,8 +177,6 @@ class ApiProvider {
   Future<GetProductsCatModel> getProductsCatAPI(String? catId) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
-    debugPrint(
-        "baseUrlProdOrder:${Constants.baseUrl}api/products/pos/category-products-with-category?filter=false&categoryId=$catId");
     try {
       var dio = Dio();
       var response = await dio.request(

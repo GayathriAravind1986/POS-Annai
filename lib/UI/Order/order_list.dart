@@ -99,7 +99,6 @@ class OrderViewViewState extends State<OrderViewView> {
   @override
   void initState() {
     super.initState();
-
     if (widget.sharedOrderData != null) {
       getOrderListTodayModel = widget.sharedOrderData!;
     }

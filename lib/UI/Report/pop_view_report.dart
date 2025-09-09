@@ -149,6 +149,7 @@ class _ThermalReportReceiptDialogState
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
             child: SingleChildScrollView(
               child: Container(
+                width: size.width * 0.4,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: whiteColor,

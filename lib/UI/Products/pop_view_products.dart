@@ -1,17 +1,13 @@
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:simple/ModelClass/Products/get_products_cat_model.dart';
-import 'package:simple/ModelClass/Report/Get_report_with_ordertype_model.dart';
 import 'package:simple/Reusable/color.dart';
 import 'package:simple/Reusable/space.dart';
-import 'package:simple/Reusable/text_styles.dart';
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/imin_abstract.dart';
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/mock_imin_printer_chrome.dart';
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/real_device_printer.dart';
-import 'package:simple/UI/IminHelper/Report_helper.dart';
 import 'package:simple/UI/IminHelper/product_helper.dart';
 
 class ThermalProductsReceiptDialog extends StatefulWidget {
@@ -89,6 +85,7 @@ class _ThermalProductsReceiptDialogState
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
       child: SingleChildScrollView(
         child: Container(
+          width: size.width * 0.4,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: whiteColor,

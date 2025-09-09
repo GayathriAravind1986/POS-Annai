@@ -940,7 +940,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
   @override
   void initState() {
     super.initState();
-    ipController.text = "192.168.1.87";
+    ipController.text = "192.168.1.9";
     if (kIsWeb) {
       printerService = MockPrinterService();
       printerServiceThermal = MockPrinterService();

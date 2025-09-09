@@ -27,20 +27,10 @@ Widget getProductReceiptWidget({
           Center(
             child: Column(
               children: [
-                // Text(
-                //   "$showItems",
-                //   style: const TextStyle(
-                //     fontSize: 20,
-                //     fontWeight: FontWeight.w600,
-                //     color: blackColor,
-                //   ),
-                //   textAlign: TextAlign.center,
-                // ),
-                // const SizedBox(height: 4),
                 Text(
                   businessName,
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                     color: blackColor,
                   ),
@@ -95,7 +85,6 @@ Widget getProductReceiptWidget({
           _buildThermalLabelRow("Total Categories", totalCat),
           _buildThermalLabelRow("Total Products", totalCount),
           const SizedBox(height: 8),
-          /* Line */
           if (itemsLine.isNotEmpty) ...[
             Divider(thickness: 4, color: blackColor),
             ..._buildCategoryWiseItems(itemsLine),
@@ -111,27 +100,6 @@ Widget getProductReceiptWidget({
               ),
             ),
           ),
-          const SizedBox(height: 4),
-          // const Center(
-          //   child: Text(
-          //     "Powered By",
-          //     style: TextStyle(
-          //       fontWeight: FontWeight.bold,
-          //       fontSize: 14,
-          //       color: blackColor,
-          //     ),
-          //   ),
-          // ),
-          // const Center(
-          //   child: Text(
-          //     "www.sentinixtechsolutions.com",
-          //     style: TextStyle(
-          //       fontWeight: FontWeight.bold,
-          //       fontSize: 14,
-          //       color: blackColor,
-          //     ),
-          //   ),
-          // ),
           const SizedBox(height: 80), // Footer padding
         ],
       ),
@@ -146,7 +114,7 @@ Widget _buildThermalItemRow(
     child: Row(
       children: [
         Expanded(
-          flex: 1,
+          flex: 2,
           child: Text(
             '$sno',
             textAlign: TextAlign.center,
@@ -273,7 +241,7 @@ List<Widget> _buildCategoryWiseItems(List<Map<String, dynamic>> itemsLine) {
           ),
         ),
         Expanded(
-          flex: 2,
+          flex: 4,
           child: Text(
             "Code",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -288,7 +256,7 @@ List<Widget> _buildCategoryWiseItems(List<Map<String, dynamic>> itemsLine) {
           ),
         ),
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Text(
             "Parcel",
             textAlign: TextAlign.center,
@@ -296,7 +264,7 @@ List<Widget> _buildCategoryWiseItems(List<Map<String, dynamic>> itemsLine) {
           ),
         ),
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Text(
             "AC",
             textAlign: TextAlign.center,
