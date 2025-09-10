@@ -940,7 +940,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
   @override
   void initState() {
     super.initState();
-    ipController.text = "192.168.1.9";
+    ipController.text = "192.168.1.10";
     if (kIsWeb) {
       printerService = MockPrinterService();
       printerServiceThermal = MockPrinterService();
@@ -1360,7 +1360,6 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                     int currentQuantity =
                                                         getCurrentQuantity(
                                                             p.id.toString());
-
                                                     TextEditingController
                                                         currentController =
                                                         getQuantityController(
@@ -1368,7 +1367,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                     return InkWell(
                                                       onTap: () {
                                                         setState(() {
-                                                          p.counter = 1;
+                                                          currentQuantity = 1;
                                                           if (p.addons!
                                                               .isNotEmpty) {
                                                             showDialog(
@@ -1895,8 +1894,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                         (p.availableQuantity ??
                                                                                 0) >
                                                                             0 ||
-                                                                    p.isStock ==
-                                                                        false)
+                                                                    (currentQuantity ==
+                                                                            0 &&
+                                                                        p.isStock ==
+                                                                            false))
                                                                   verticalSpace(
                                                                       height:
                                                                           5),
@@ -1905,8 +1906,10 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                         (p.availableQuantity ??
                                                                                 0) >
                                                                             0 ||
-                                                                    p.isStock ==
-                                                                        false)
+                                                                    (currentQuantity ==
+                                                                            0 &&
+                                                                        p.isStock ==
+                                                                            false))
                                                                   SizedBox(
                                                                     width: size
                                                                             .width *
@@ -1971,13 +1974,13 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                                 5),
                                                                         CircleAvatar(
                                                                           radius:
-                                                                              16,
+                                                                              15,
                                                                           backgroundColor:
                                                                               greyColor200,
                                                                           child:
                                                                               IconButton(
                                                                             icon: const Icon(Icons.remove,
-                                                                                size: 16,
+                                                                                size: 15,
                                                                                 color: blackColor),
                                                                             onPressed:
                                                                                 () {
@@ -2035,7 +2038,8 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                             decoration:
                                                                                 const InputDecoration(
                                                                               border: InputBorder.none,
-                                                                              contentPadding: EdgeInsets.symmetric(vertical: 12),
+                                                                              isDense: true,
+                                                                              contentPadding: EdgeInsets.all(8),
                                                                             ),
                                                                             onChanged:
                                                                                 (value) {
@@ -2141,7 +2145,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
 
                                                                           return CircleAvatar(
                                                                             radius:
-                                                                                16,
+                                                                                15,
                                                                             backgroundColor: canAddMore
                                                                                 ? appPrimaryColor
                                                                                 : greyColor,
@@ -2223,17 +2227,23 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                     child: Row(
                                                                       mainAxisAlignment:
                                                                           MainAxisAlignment
-                                                                              .center,
+                                                                              .start,
                                                                       children: [
-                                                                        // Expanded(
-                                                                        //   child: Text(
-                                                                        //     '₹ ${p.basePrice}',
-                                                                        //     style: MyTextStyle.f14(blackColor, weight: FontWeight.w600),
-                                                                        //     maxLines: 1,
-                                                                        //     overflow: TextOverflow.ellipsis,
-                                                                        //   ),
-                                                                        // ),
-                                                                        // horizontalSpace(width: 5),
+                                                                        Expanded(
+                                                                          child:
+                                                                              Text(
+                                                                            '₹ ${p.basePrice}',
+                                                                            style:
+                                                                                MyTextStyle.f14(blackColor, weight: FontWeight.w600),
+                                                                            maxLines:
+                                                                                1,
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis,
+                                                                          ),
+                                                                        ),
+                                                                        horizontalSpace(
+                                                                            width:
+                                                                                5),
                                                                         CircleAvatar(
                                                                           radius:
                                                                               15,
@@ -2274,7 +2284,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                                                                         ),
                                                                         Container(
                                                                           width:
-                                                                              60,
+                                                                              45,
                                                                           height:
                                                                               32,
                                                                           margin: const EdgeInsets

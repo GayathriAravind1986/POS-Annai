@@ -35,7 +35,7 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
   @override
   void initState() {
     super.initState();
-    ipController.text = "192.168.1.9";
+    ipController.text = "192.168.1.10";
     if (kIsWeb) {
       printerService = MockPrinterService();
       printerServiceThermal = MockPrinterService();

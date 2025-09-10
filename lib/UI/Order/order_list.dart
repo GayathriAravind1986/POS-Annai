@@ -274,10 +274,11 @@ class OrderViewViewState extends State<OrderViewView> {
                                         },
                                       ),
                                       SizedBox(width: 4),
-                                      if (widget.operatorShared ==
-                                              widget.selectOperator ||
-                                          widget.selectOperator == null ||
-                                          widget.selectOperator == "")
+                                      if ((widget.operatorShared ==
+                                                  widget.selectOperator ||
+                                              widget.selectOperator == null ||
+                                              widget.selectOperator == "") &&
+                                          order.orderStatus != 'COMPLETED')
                                         IconButton(
                                           padding: EdgeInsets.zero,
                                           constraints: BoxConstraints(),
