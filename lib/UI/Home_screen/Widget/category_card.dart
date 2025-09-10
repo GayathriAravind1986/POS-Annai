@@ -31,14 +31,14 @@ class CategoryCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        width: size.width * 0.3,
+        width: size.width * 0.1,
         height: size.height * 0.15,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
         decoration: BoxDecoration(
           color: isSelected ? whiteColor : greyColor.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? appPrimaryColor : greyColor,
+            color: isSelected ? appPrimaryColor.shade300 : greyColor.shade300,
             width: 1.5,
           ),
         ),
