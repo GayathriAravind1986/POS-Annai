@@ -718,19 +718,19 @@ class OrderViewViewState extends State<OrderViewView> {
                                                 .add(ViewOrder(order.id));
                                           },
                                         ),
-                                      SizedBox(width: 4),
-                                      if (order.orderStatus != 'COMPLETED')
-                                        IconButton(
-                                          padding: EdgeInsets.zero,
-                                          constraints: BoxConstraints(),
-                                          icon: Icon(Icons.delete,
-                                              color: appPrimaryColor, size: 20),
-                                          onPressed: () {
-                                            context
-                                                .read<OrderTodayBloc>()
-                                                .add(DeleteOrder(order.id));
-                                          },
-                                        ),
+                                      // SizedBox(width: 4),
+                                      // if (order.orderStatus != 'COMPLETED')
+                                      //   IconButton(
+                                      //     padding: EdgeInsets.zero,
+                                      //     constraints: BoxConstraints(),
+                                      //     icon: Icon(Icons.delete,
+                                      //         color: appPrimaryColor, size: 20),
+                                      //     onPressed: () {
+                                      //       context
+                                      //           .read<OrderTodayBloc>()
+                                      //           .add(DeleteOrder(order.id));
+                                      //     },
+                                      //   ),
                                     ],
                                   ),
                                 ],
