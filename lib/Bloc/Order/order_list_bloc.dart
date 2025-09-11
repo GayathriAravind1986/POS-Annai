@@ -29,6 +29,14 @@ class WaiterDine extends OrderTodayEvent {}
 
 class UserDetails extends OrderTodayEvent {}
 
+class StockDetails extends OrderTodayEvent {}
+
+class UpdateOrder extends OrderTodayEvent {
+  final String orderPayloadJson;
+  String? orderId;
+  UpdateOrder(this.orderPayloadJson, this.orderId);
+}
+
 class OrderTodayBloc extends Bloc<OrderTodayEvent, dynamic> {
   OrderTodayBloc() : super(dynamic) {
     on<OrderTodayList>((event, emit) async {
@@ -71,6 +79,22 @@ class OrderTodayBloc extends Bloc<OrderTodayEvent, dynamic> {
     });
     on<UserDetails>((event, emit) async {
       await ApiProvider().getUserDetailsAPI().then((value) {
+        emit(value);
+      }).catchError((error) {
+        emit(error);
+      });
+    });
+    on<StockDetails>((event, emit) async {
+      await ApiProvider().getStockDetailsAPI().then((value) {
+        emit(value);
+      }).catchError((error) {
+        emit(error);
+      });
+    });
+    on<UpdateOrder>((event, emit) async {
+      await ApiProvider()
+          .updateGenerateOrderAPI(event.orderPayloadJson, event.orderId)
+          .then((value) {
         emit(value);
       }).catchError((error) {
         emit(error);

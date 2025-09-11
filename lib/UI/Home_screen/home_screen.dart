@@ -5476,8 +5476,6 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
           }
           showToast("${updateGenerateOrderModel.message}", context,
               color: true);
-          debugPrint(
-              "updateGenerateOrderModel.message:${updateGenerateOrderModel.message}");
           bool shouldPrintReceipt = isCompleteOrder;
           setState(() {
             completeLoad = false;
