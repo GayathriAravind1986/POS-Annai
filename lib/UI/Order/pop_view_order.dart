@@ -7,7 +7,7 @@ import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
 import 'package:simple/ModelClass/Order/Get_view_order_model.dart';
 import 'package:simple/Reusable/color.dart';
-import 'package:simple/Reusable/space.dart';
+import 'package:simple/Reusable/space.dart'
 import 'package:simple/Reusable/text_styles.dart';
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/imin_abstract.dart';
 import 'package:simple/UI/Home_screen/Widget/another_imin_printer/mock_imin_printer_chrome.dart';
@@ -31,7 +31,7 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
   GlobalKey kotReceiptKey = GlobalKey();
   final TextEditingController ipController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  String? portIp;
+
   @override
   void initState() {
     super.initState();
