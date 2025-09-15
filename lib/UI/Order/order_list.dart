@@ -516,7 +516,7 @@ class OrderViewViewState extends State<OrderViewView> {
 
   @override
   Widget build(BuildContext context) {
-    String? type;
+    //   String? type;
     switch (widget.type) {
       case "Line":
         type = "LINE";
