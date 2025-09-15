@@ -168,7 +168,7 @@ Widget getThermalReceiptWidget({
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          // const SizedBox(height: 8),
           // const Center(
           //   child: Text(
           //     "Powered By",
@@ -189,7 +189,7 @@ Widget getThermalReceiptWidget({
           //     ),
           //   ),
           // ),
-          const SizedBox(height: 80),
+          const SizedBox(height: 40),
         ],
       ),
     ),

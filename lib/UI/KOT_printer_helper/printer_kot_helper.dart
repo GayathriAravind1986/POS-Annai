@@ -185,7 +185,7 @@ Widget getThermalReceiptKOTWidget({
             ),
           ),
 
-          const SizedBox(height: 8),
+          // const SizedBox(height: 8),
 
           // Powered by section
           // const Center(
@@ -210,7 +210,7 @@ Widget getThermalReceiptKOTWidget({
           // ),
 
           // Extra space for thermal printer cutting
-          const SizedBox(height: 60),
+          const SizedBox(height: 40),
         ],
       ),
     ),
