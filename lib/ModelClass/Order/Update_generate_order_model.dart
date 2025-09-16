@@ -101,6 +101,7 @@ class Invoice {
     String? gstNumber,
     String? currencySymbol,
     String? printType,
+    String? thermalIp,
     String? orderStatus,
     List<InvoiceItems>? invoiceItems,
     num? subtotal,
@@ -125,6 +126,7 @@ class Invoice {
     _gstNumber = gstNumber;
     _currencySymbol = currencySymbol;
     _printType = printType;
+    _thermalIp = thermalIp;
     _orderStatus = orderStatus;
     _invoiceItems = invoiceItems;
     _subtotal = subtotal;
@@ -151,6 +153,7 @@ class Invoice {
     _gstNumber = json['gstNumber'];
     _currencySymbol = json['currencySymbol'];
     _printType = json['printType'];
+    _thermalIp = json['thermalIp'];
     _orderStatus = json['orderStatus'];
     if (json['invoice_items'] != null) {
       _invoiceItems = [];
@@ -190,6 +193,7 @@ class Invoice {
   String? _gstNumber;
   String? _currencySymbol;
   String? _printType;
+  String? _thermalIp;
   String? _orderStatus;
   List<InvoiceItems>? _invoiceItems;
   num? _subtotal;
@@ -214,6 +218,7 @@ class Invoice {
     String? gstNumber,
     String? currencySymbol,
     String? printType,
+    String? thermalIp,
     String? orderStatus,
     List<InvoiceItems>? invoiceItems,
     num? subtotal,
@@ -239,6 +244,7 @@ class Invoice {
         gstNumber: gstNumber ?? _gstNumber,
         currencySymbol: currencySymbol ?? _currencySymbol,
         printType: printType ?? _printType,
+        thermalIp: thermalIp ?? _thermalIp,
         orderStatus: orderStatus ?? _orderStatus,
         invoiceItems: invoiceItems ?? _invoiceItems,
         subtotal: subtotal ?? _subtotal,
@@ -263,6 +269,7 @@ class Invoice {
   String? get gstNumber => _gstNumber;
   String? get currencySymbol => _currencySymbol;
   String? get printType => _printType;
+  String? get thermalIp => _thermalIp;
   String? get orderStatus => _orderStatus;
   List<InvoiceItems>? get invoiceItems => _invoiceItems;
   num? get subtotal => _subtotal;
@@ -289,6 +296,7 @@ class Invoice {
     map['gstNumber'] = _gstNumber;
     map['currencySymbol'] = _currencySymbol;
     map['printType'] = _printType;
+    map['thermalIp'] = _thermalIp;
     map['orderStatus'] = _orderStatus;
     if (_invoiceItems != null) {
       map['invoice_items'] = _invoiceItems?.map((v) => v.toJson()).toList();

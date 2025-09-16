@@ -191,6 +191,7 @@ class Invoice {
     String? gstNumber,
     String? currencySymbol,
     String? printType,
+    String? thermalIp,
     List<InvoiceItems>? invoiceItems,
     num? subtotal,
     num? salesTax,
@@ -214,6 +215,7 @@ class Invoice {
     _gstNumber = gstNumber;
     _currencySymbol = currencySymbol;
     _printType = printType;
+    _thermalIp = thermalIp;
     _invoiceItems = invoiceItems;
     _subtotal = subtotal;
     _finalTaxes = finalTaxes;
@@ -239,6 +241,7 @@ class Invoice {
     _gstNumber = json['gstNumber'];
     _currencySymbol = json['currencySymbol'];
     _printType = json['printType'];
+    _thermalIp = json['thermalIp'];
     if (json['invoice_items'] != null) {
       _invoiceItems = [];
       json['invoice_items'].forEach((v) {
@@ -277,6 +280,7 @@ class Invoice {
   String? _gstNumber;
   String? _currencySymbol;
   String? _printType;
+  String? _thermalIp;
   List<InvoiceItems>? _invoiceItems;
   num? _subtotal;
   List<FinalTaxes>? _finalTaxes;
@@ -300,6 +304,7 @@ class Invoice {
     String? gstNumber,
     String? currencySymbol,
     String? printType,
+    String? thermalIp,
     List<InvoiceItems>? invoiceItems,
     num? subtotal,
     List<FinalTaxes>? finalTaxes,
@@ -324,6 +329,7 @@ class Invoice {
         gstNumber: gstNumber ?? _gstNumber,
         currencySymbol: currencySymbol ?? _currencySymbol,
         printType: printType ?? _printType,
+        thermalIp: thermalIp ?? _thermalIp,
         invoiceItems: invoiceItems ?? _invoiceItems,
         subtotal: subtotal ?? _subtotal,
         finalTaxes: finalTaxes ?? _finalTaxes,
@@ -347,6 +353,7 @@ class Invoice {
   String? get gstNumber => _gstNumber;
   String? get currencySymbol => _currencySymbol;
   String? get printType => _printType;
+  String? get thermalIp => _thermalIp;
   List<InvoiceItems>? get invoiceItems => _invoiceItems;
   num? get subtotal => _subtotal;
   List<FinalTaxes>? get finalTaxes => _finalTaxes;
@@ -372,6 +379,7 @@ class Invoice {
     map['gstNumber'] = _gstNumber;
     map['currencySymbol'] = _currencySymbol;
     map['printType'] = _printType;
+    map['thermalIp'] = _thermalIp;
     if (_invoiceItems != null) {
       map['invoice_items'] = _invoiceItems?.map((v) => v.toJson()).toList();
     }

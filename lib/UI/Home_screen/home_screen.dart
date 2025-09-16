@@ -674,7 +674,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
           ? postGenerateOrderModel.invoice!.waiterName.toString()
           : 'N/A';
       String date = formatInvoiceDate(postGenerateOrderModel.invoice?.date);
-
+      ipController.text =
+          postGenerateOrderModel.invoice!.thermalIp.toString() ?? "";
+      debugPrint("ip:${ipController.text}");
       Navigator.of(context).pop();
 
       await showDialog(
@@ -764,19 +766,19 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                           ),
                         ),
                       horizontalSpace(width: 10),
-                      if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            _selectBluetoothPrinter(context);
-                          },
-                          icon: const Icon(Icons.bluetooth),
-                          label: const Text("KOT(BT)"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: greenColor,
-                            foregroundColor: whiteColor,
-                          ),
-                        ),
-                      horizontalSpace(width: 10),
+                      // if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
+                      //   ElevatedButton.icon(
+                      //     onPressed: () {
+                      //       _selectBluetoothPrinter(context);
+                      //     },
+                      //     icon: const Icon(Icons.bluetooth),
+                      //     label: const Text("KOT(BT)"),
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: greenColor,
+                      //       foregroundColor: whiteColor,
+                      //     ),
+                      //   ),
+                      // horizontalSpace(width: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
                           WidgetsBinding.instance
@@ -872,6 +874,9 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
           ? updateGenerateOrderModel.invoice!.waiterName.toString()
           : 'N/A';
       String date = formatInvoiceDate(updateGenerateOrderModel.invoice?.date);
+      ipController.text =
+          updateGenerateOrderModel.invoice!.thermalIp.toString() ?? "";
+      debugPrint("ip:${ipController.text}");
       Navigator.of(context).pop();
       await showDialog(
         context: context,
@@ -953,19 +958,19 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                           ),
                         ),
                       horizontalSpace(width: 10),
-                      if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            _selectBluetoothPrinter(context);
-                          },
-                          icon: const Icon(Icons.bluetooth),
-                          label: const Text("KOT(BT)"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: greenColor,
-                            foregroundColor: whiteColor,
-                          ),
-                        ),
-                      horizontalSpace(width: 10),
+                      // if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
+                      //   ElevatedButton.icon(
+                      //     onPressed: () {
+                      //       _selectBluetoothPrinter(context);
+                      //     },
+                      //     icon: const Icon(Icons.bluetooth),
+                      //     label: const Text("KOT(BT)"),
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: greenColor,
+                      //       foregroundColor: whiteColor,
+                      //     ),
+                      //   ),
+                      // horizontalSpace(width: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
                           WidgetsBinding.instance
@@ -1144,7 +1149,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
   @override
   void initState() {
     super.initState();
-    ipController.text = "192.168.1.4";
+    // ipController.text = "192.168.1.123";
     if (kIsWeb) {
       printerService = MockPrinterService();
       printerServiceThermal = MockPrinterService();

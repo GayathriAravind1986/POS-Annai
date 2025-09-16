@@ -40,7 +40,7 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
   @override
   void initState() {
     super.initState();
-    ipController.text = "192.168.1.4";
+    // ipController.text = "192.168.1.123";
     if (kIsWeb) {
       printerService = MockPrinterService();
       printerServiceThermal = MockPrinterService();
@@ -496,7 +496,8 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
         : 'N/A';
     String date = DateFormat('dd/MM/yyyy hh:mm a').format(
         DateFormat('M/d/yyyy, h:mm:ss a').parse(invoice.date.toString()));
-
+    ipController.text = invoice.thermalIp.toString() ?? "";
+    debugPrint("ip:${ipController.text}");
     return widget.getViewOrderModel.data == null
         ? Container(
             padding:
@@ -609,19 +610,19 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                             ),
                           ),
                         horizontalSpace(width: 10),
-                        if (invoice.kotItems!.isNotEmpty)
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              _selectBluetoothPrinter(context);
-                            },
-                            icon: const Icon(Icons.bluetooth),
-                            label: const Text("KOT(BT)"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: greenColor,
-                              foregroundColor: whiteColor,
-                            ),
-                          ),
-                        horizontalSpace(width: 10),
+                        // if (invoice.kotItems!.isNotEmpty)
+                        //   ElevatedButton.icon(
+                        //     onPressed: () {
+                        //       _selectBluetoothPrinter(context);
+                        //     },
+                        //     icon: const Icon(Icons.bluetooth),
+                        //     label: const Text("KOT(BT)"),
+                        //     style: ElevatedButton.styleFrom(
+                        //       backgroundColor: greenColor,
+                        //       foregroundColor: whiteColor,
+                        //     ),
+                        //   ),
+                        // horizontalSpace(width: 10),
                         ElevatedButton.icon(
                           onPressed: () async {
                             WidgetsBinding.instance
