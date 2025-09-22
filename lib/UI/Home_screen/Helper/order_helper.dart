@@ -27,6 +27,7 @@ Map<String, dynamic> buildOrderPayload({
                 "addon": addon.id,
                 "name": addon.name,
                 "price": addon.price,
+                "quantity": addon.quantity,
               };
             }).toList() ??
             [],
