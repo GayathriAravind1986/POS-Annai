@@ -514,149 +514,145 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
             backgroundColor: Colors.transparent,
             insetPadding:
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-            child: SingleChildScrollView(
-              child: Container(
-                width: size.width * 0.4,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: whiteColor,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    // Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Center(
-                          child: const Text(
-                            "Order Receipt",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 80),
+                  child: SingleChildScrollView(
+                    child: Container(
+                      width: size.width * 0.4,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: whiteColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          // Header
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Center(
+                                child: const Text(
+                                  "Order Receipt",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => Navigator.pop(context),
+                                icon: const Icon(Icons.close),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          RepaintBoundary(
+                            key: normalReceiptKey,
+                            child: getThermalReceiptWidget(
+                              businessName: businessName,
+                              address: address,
+                              gst: gst,
+                              items: items,
+                              finalTax: finalTax,
+                              tax: taxAmount,
+                              paidBy: paymentMethod,
+                              tamilTagline: '',
+                              phone: phone,
+                              subtotal: subTotal,
+                              total: total,
+                              orderNumber: orderNumber,
+                              tableName: tableName,
+                              waiterName: waiterName,
+                              orderType: orderType,
+                              date: date,
+                              status: orderStatus,
                             ),
                           ),
-                        ),
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    RepaintBoundary(
-                      key: normalReceiptKey,
-                      child: getThermalReceiptWidget(
-                        businessName: businessName,
-                        address: address,
-                        gst: gst,
-                        items: items,
-                        finalTax: finalTax,
-                        tax: taxAmount,
-                        paidBy: paymentMethod,
-                        tamilTagline: '',
-                        phone: phone,
-                        subtotal: subTotal,
-                        total: total,
-                        orderNumber: orderNumber,
-                        tableName: tableName,
-                        waiterName: waiterName,
-                        orderType: orderType,
-                        date: date,
-                        status: orderStatus,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    if (invoice.kotItems!.isNotEmpty)
-                      RepaintBoundary(
-                        key: kotReceiptKey,
-                        child: getThermalReceiptKOTWidget(
-                          businessName: businessName,
-                          address: address,
-                          gst: gst,
-                          items: kotItems,
-                          paidBy: paymentMethod,
-                          tamilTagline: '',
-                          phone: phone,
-                          subtotal: subTotal,
-                          tax: taxAmount,
-                          total: total,
-                          orderNumber: orderNumber,
-                          tableName: tableName,
-                          waiterName: waiterName,
-                          orderType: orderType,
-                          date: date,
-                          status: orderStatus,
-                        ),
-                      ),
+                          const SizedBox(height: 20),
+                          if (invoice.kotItems!.isNotEmpty)
+                            RepaintBoundary(
+                              key: kotReceiptKey,
+                              child: getThermalReceiptKOTWidget(
+                                businessName: businessName,
+                                address: address,
+                                gst: gst,
+                                items: kotItems,
+                                paidBy: paymentMethod,
+                                tamilTagline: '',
+                                phone: phone,
+                                subtotal: subTotal,
+                                tax: taxAmount,
+                                total: total,
+                                orderNumber: orderNumber,
+                                tableName: tableName,
+                                waiterName: waiterName,
+                                orderType: orderType,
+                                date: date,
+                                status: orderStatus,
+                              ),
+                            ),
 
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (invoice.kotItems!.isNotEmpty)
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              _startKOTPrintingThermalOnly(
-                                context,
-                                ipController.text.trim(),
-                              );
-                            },
-                            icon: const Icon(Icons.print),
-                            label: const Text("KOT(LAN)"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: greenColor,
-                              foregroundColor: whiteColor,
-                            ),
-                          ),
-                        horizontalSpace(width: 10),
-                        // if (invoice.kotItems!.isNotEmpty)
-                        //   ElevatedButton.icon(
-                        //     onPressed: () {
-                        //       _selectBluetoothPrinter(context);
-                        //     },
-                        //     icon: const Icon(Icons.bluetooth),
-                        //     label: const Text("KOT(BT)"),
-                        //     style: ElevatedButton.styleFrom(
-                        //       backgroundColor: greenColor,
-                        //       foregroundColor: whiteColor,
-                        //     ),
-                        //   ),
-                        // horizontalSpace(width: 10),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (invoice.kotItems!.isNotEmpty)
                         ElevatedButton.icon(
-                          onPressed: () async {
-                            WidgetsBinding.instance
-                                .addPostFrameCallback((_) async {
-                              await _ensureIminServiceReady();
-                              await _printBillToIminOnly(context);
-                            });
+                          onPressed: () {
+                            _startKOTPrintingThermalOnly(
+                              context,
+                              ipController.text.trim(),
+                            );
                           },
                           icon: const Icon(Icons.print),
-                          label: const Text("Imin"),
+                          label: const Text("KOT(LAN)"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: greenColor,
                             foregroundColor: whiteColor,
                           ),
                         ),
-                        horizontalSpace(width: 10),
-                        SizedBox(
-                          width: size.width * 0.09,
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              "CLOSE",
-                              style: TextStyle(color: appPrimaryColor),
-                            ),
-                          ),
+                      horizontalSpace(width: 10),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          WidgetsBinding.instance
+                              .addPostFrameCallback((_) async {
+                            await _ensureIminServiceReady();
+                            await _printBillToIminOnly(context);
+                          });
+                        },
+                        icon: const Icon(Icons.print),
+                        label: const Text("Imin"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: greenColor,
+                          foregroundColor: whiteColor,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Close Button
-                  ],
-                ),
-              ),
+                      ),
+                      horizontalSpace(width: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        label: const Text("CLOSE"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appPrimaryColor,
+                          foregroundColor: whiteColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
           );
   }

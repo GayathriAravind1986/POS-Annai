@@ -138,7 +138,7 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
   bool isLoadingMore = false;
   bool hasMoreData = true;
   int currentOffset = 0;
-  final int limit = 9;
+  final int limit = 1000;
 
   List<TextEditingController> splitAmountControllers = [];
   List<String?> selectedPaymentMethods = [];
@@ -691,69 +691,81 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
           backgroundColor: Colors.transparent,
           insetPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-          child: SingleChildScrollView(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.4,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: whiteColor,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  // Normal Bill Receipt
-                  RepaintBoundary(
-                    key: normalReceiptKey,
-                    child: getThermalReceiptWidget(
-                      businessName: businessName,
-                      address: address,
-                      gst: gst,
-                      items: items,
-                      finalTax: finalTax,
-                      tax: taxPercent,
-                      paidBy: paymentMethod,
-                      tamilTagline: '',
-                      phone: phone,
-                      subtotal: subTotal,
-                      total: total,
-                      orderNumber: orderNumber,
-                      tableName: tableName,
-                      waiterName: waiterName,
-                      orderType: orderType,
-                      date: date,
-                      status: orderStatus,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 80),
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: whiteColor,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        // Normal Bill Receipt
+                        RepaintBoundary(
+                          key: normalReceiptKey,
+                          child: getThermalReceiptWidget(
+                            businessName: businessName,
+                            address: address,
+                            gst: gst,
+                            items: items,
+                            finalTax: finalTax,
+                            tax: taxPercent,
+                            paidBy: paymentMethod,
+                            tamilTagline: '',
+                            phone: phone,
+                            subtotal: subTotal,
+                            total: total,
+                            orderNumber: orderNumber,
+                            tableName: tableName,
+                            waiterName: waiterName,
+                            orderType: orderType,
+                            date: date,
+                            status: orderStatus,
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // KOT Receipt (for kitchen)
+                        if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
+                          RepaintBoundary(
+                            key: kotReceiptKey,
+                            child: getThermalReceiptKOTWidget(
+                              businessName: businessName,
+                              address: address,
+                              gst: gst,
+                              items: kotItems,
+                              paidBy: paymentMethod,
+                              tamilTagline: '',
+                              phone: phone,
+                              subtotal: subTotal,
+                              tax: taxPercent,
+                              total: total,
+                              orderNumber: orderNumber,
+                              tableName: tableName,
+                              waiterName: waiterName,
+                              orderType: orderType,
+                              date: date,
+                              status: orderStatus,
+                            ),
+                          ),
+
+                        const SizedBox(height: 20),
+                      ],
                     ),
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // KOT Receipt (for kitchen)
-                  if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
-                    RepaintBoundary(
-                      key: kotReceiptKey,
-                      child: getThermalReceiptKOTWidget(
-                        businessName: businessName,
-                        address: address,
-                        gst: gst,
-                        items: kotItems,
-                        paidBy: paymentMethod,
-                        tamilTagline: '',
-                        phone: phone,
-                        subtotal: subTotal,
-                        tax: taxPercent,
-                        total: total,
-                        orderNumber: orderNumber,
-                        tableName: tableName,
-                        waiterName: waiterName,
-                        orderType: orderType,
-                        date: date,
-                        status: orderStatus,
-                      ),
-                    ),
-
-                  const SizedBox(height: 20),
-
-                  Row(
+                ),
+              ),
+              Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
@@ -772,19 +784,6 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                           ),
                         ),
                       horizontalSpace(width: 10),
-                      // if (postGenerateOrderModel.invoice!.kot!.isNotEmpty)
-                      //   ElevatedButton.icon(
-                      //     onPressed: () {
-                      //       _selectBluetoothPrinter(context);
-                      //     },
-                      //     icon: const Icon(Icons.bluetooth),
-                      //     label: const Text("KOT(BT)"),
-                      //     style: ElevatedButton.styleFrom(
-                      //       backgroundColor: greenColor,
-                      //       foregroundColor: whiteColor,
-                      //     ),
-                      //   ),
-                      // horizontalSpace(width: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
                           WidgetsBinding.instance
@@ -801,21 +800,19 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                         ),
                       ),
                       horizontalSpace(width: 10),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.09,
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            "CLOSE",
-                            style: TextStyle(color: appPrimaryColor),
-                          ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        label: const Text("CLOSE"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appPrimaryColor,
+                          foregroundColor: whiteColor,
                         ),
                       ),
                     ],
-                  ),
-                ],
-              ),
-            ),
+                  ))
+            ],
           ),
         ),
       );
@@ -890,62 +887,75 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
           backgroundColor: Colors.transparent,
           insetPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-          child: SingleChildScrollView(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.4,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: whiteColor,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  RepaintBoundary(
-                    key: normalReceiptKey,
-                    child: getThermalReceiptWidget(
-                        businessName: businessName,
-                        address: address,
-                        gst: gst,
-                        items: items,
-                        finalTax: finalTax,
-                        tax: taxPercent,
-                        paidBy: paymentMethod,
-                        tamilTagline: '',
-                        phone: phone,
-                        subtotal: subTotal,
-                        total: total,
-                        orderNumber: orderNumber,
-                        tableName: tableName,
-                        waiterName: waiterName,
-                        orderType: orderType,
-                        date: date,
-                        status: orderStatus),
-                  ),
-                  const SizedBox(height: 20),
-                  if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
-                    RepaintBoundary(
-                      key: kotReceiptKey,
-                      child: getThermalReceiptKOTWidget(
-                        businessName: businessName,
-                        address: address,
-                        gst: gst,
-                        items: kotItems,
-                        paidBy: paymentMethod,
-                        tamilTagline: '',
-                        phone: phone,
-                        subtotal: subTotal,
-                        tax: taxPercent,
-                        total: total,
-                        orderNumber: orderNumber,
-                        tableName: tableName,
-                        waiterName: waiterName,
-                        orderType: orderType,
-                        date: date,
-                        status: orderStatus,
-                      ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 80),
+                child: SingleChildScrollView(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: whiteColor,
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  const SizedBox(height: 20),
-                  Row(
+                    child: Column(
+                      children: [
+                        RepaintBoundary(
+                          key: normalReceiptKey,
+                          child: getThermalReceiptWidget(
+                              businessName: businessName,
+                              address: address,
+                              gst: gst,
+                              items: items,
+                              finalTax: finalTax,
+                              tax: taxPercent,
+                              paidBy: paymentMethod,
+                              tamilTagline: '',
+                              phone: phone,
+                              subtotal: subTotal,
+                              total: total,
+                              orderNumber: orderNumber,
+                              tableName: tableName,
+                              waiterName: waiterName,
+                              orderType: orderType,
+                              date: date,
+                              status: orderStatus),
+                        ),
+                        const SizedBox(height: 20),
+                        if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
+                          RepaintBoundary(
+                            key: kotReceiptKey,
+                            child: getThermalReceiptKOTWidget(
+                              businessName: businessName,
+                              address: address,
+                              gst: gst,
+                              items: kotItems,
+                              paidBy: paymentMethod,
+                              tamilTagline: '',
+                              phone: phone,
+                              subtotal: subTotal,
+                              tax: taxPercent,
+                              total: total,
+                              orderNumber: orderNumber,
+                              tableName: tableName,
+                              waiterName: waiterName,
+                              orderType: orderType,
+                              date: date,
+                              status: orderStatus,
+                            ),
+                          ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
@@ -964,19 +974,6 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                           ),
                         ),
                       horizontalSpace(width: 10),
-                      // if (updateGenerateOrderModel.invoice!.kot!.isNotEmpty)
-                      //   ElevatedButton.icon(
-                      //     onPressed: () {
-                      //       _selectBluetoothPrinter(context);
-                      //     },
-                      //     icon: const Icon(Icons.bluetooth),
-                      //     label: const Text("KOT(BT)"),
-                      //     style: ElevatedButton.styleFrom(
-                      //       backgroundColor: greenColor,
-                      //       foregroundColor: whiteColor,
-                      //     ),
-                      //   ),
-                      // horizontalSpace(width: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
                           WidgetsBinding.instance
@@ -993,21 +990,19 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                         ),
                       ),
                       horizontalSpace(width: 10),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.09,
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            "CLOSE",
-                            style: TextStyle(color: appPrimaryColor),
-                          ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        label: const Text("CLOSE"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appPrimaryColor,
+                          foregroundColor: whiteColor,
                         ),
                       ),
                     ],
-                  ),
-                ],
-              ),
-            ),
+                  ))
+            ],
           ),
         ),
       );

@@ -200,6 +200,26 @@ class ReportViewViewState extends State<ReportViewView> {
     toDateController.clear;
   }
 
+  bool _hasReportData() {
+    if (getReportModel.orderTypes == null) return false;
+
+    // Check if any order type has data
+    bool hasLineData =
+        getReportModel.orderTypes!.line?.data?.isNotEmpty ?? false;
+    bool hasParcelData =
+        getReportModel.orderTypes!.parcel?.data?.isNotEmpty ?? false;
+    bool hasAcData = getReportModel.orderTypes!.ac?.data?.isNotEmpty ?? false;
+    bool hasHdData = getReportModel.orderTypes!.hd?.data?.isNotEmpty ?? false;
+    bool hasSwiggyData =
+        getReportModel.orderTypes!.swiggy?.data?.isNotEmpty ?? false;
+
+    return hasLineData ||
+        hasParcelData ||
+        hasAcData ||
+        hasHdData ||
+        hasSwiggyData;
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget mainContainer() {
@@ -498,8 +518,6 @@ class ReportViewViewState extends State<ReportViewView> {
                                   ?.firstWhere((item) => item.name == newValue);
                               userId = selectedItem?.id.toString();
                             });
-                            debugPrint("operatorSelectr:$userId");
-                            debugPrint("operatorSelectr:$selectedValueUser");
                             context.read<ReportTodayBloc>().add(
                                   ReportTodayList(
                                       todayApiDate,
@@ -1216,48 +1234,48 @@ class ReportViewViewState extends State<ReportViewView> {
                                 const SizedBox(height: 16),
                               ],
                             ],
-
-                            // ✅ Always show totals
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    "Total Quantity: ${getReportModel.finalQty}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
-                                  ),
-                                  Text(
-                                    "Total Amount: ₹${getReportModel.finalAmount?.toStringAsFixed(2) ?? '0.00'}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Center(
-                              child: ElevatedButton.icon(
-                                onPressed: () async {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        ThermalReportReceiptDialog(
-                                            getReportModel,
-                                            showItems: includeProduct),
-                                  );
-                                },
-                                icon: const Icon(Icons.print),
-                                label: const Text("Print"),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: greenColor,
-                                  foregroundColor: whiteColor,
+                            if (_hasReportData())
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "Total Quantity: ${getReportModel.finalQty}",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                    Text(
+                                      "Total Amount: ₹${getReportModel.finalAmount?.toStringAsFixed(2) ?? '0.00'}",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
+                            if (_hasReportData()) const SizedBox(height: 16),
+                            if (_hasReportData())
+                              Center(
+                                child: ElevatedButton.icon(
+                                  onPressed: () async {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          ThermalReportReceiptDialog(
+                                              getReportModel,
+                                              showItems: includeProduct),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.print),
+                                  label: const Text("Print"),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: greenColor,
+                                    foregroundColor: whiteColor,
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
             ],
