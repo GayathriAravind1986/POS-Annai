@@ -601,53 +601,75 @@ class _ThermalReceiptDialogState extends State<ThermalReceiptDialog> {
                   ),
                 ),
                 Positioned(
-                  bottom: 16,
+                  bottom: invoice.kotItems!.isNotEmpty ? 2 : 16,
                   left: 16,
                   right: 16,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Column(
                     children: [
-                      if (invoice.kotItems!.isNotEmpty)
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            _startKOTPrintingThermalOnly(
-                              context,
-                              ipController.text.trim(),
-                            );
-                          },
-                          icon: const Icon(Icons.print),
-                          label: const Text("KOT(LAN)"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: greenColor,
-                            foregroundColor: whiteColor,
-                          ),
-                        ),
-                      horizontalSpace(width: 10),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          WidgetsBinding.instance
-                              .addPostFrameCallback((_) async {
-                            await _ensureIminServiceReady();
-                            await _printBillToIminOnly(context);
-                          });
-                        },
-                        icon: const Icon(Icons.print),
-                        label: const Text("Imin"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: greenColor,
-                          foregroundColor: whiteColor,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (invoice.kotItems!.isNotEmpty)
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                _startKOTPrintingThermalOnly(
+                                  context,
+                                  ipController.text.trim(),
+                                );
+                              },
+                              icon: const Icon(Icons.print),
+                              label: const Text("KOT(LAN)"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: greenColor,
+                                foregroundColor: whiteColor,
+                              ),
+                            ),
+                          horizontalSpace(width: 10),
+                          if (invoice.kotItems!.isNotEmpty)
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                _selectBluetoothPrinter(context);
+                              },
+                              icon: const Icon(Icons.bluetooth),
+                              label: const Text("KOT(BT)"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: greenColor,
+                                foregroundColor: whiteColor,
+                              ),
+                            ),
+                        ],
                       ),
-                      horizontalSpace(width: 10),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        label: const Text("CLOSE"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appPrimaryColor,
-                          foregroundColor: whiteColor,
-                        ),
+                      verticalSpace(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              WidgetsBinding.instance
+                                  .addPostFrameCallback((_) async {
+                                await _ensureIminServiceReady();
+                                await _printBillToIminOnly(context);
+                              });
+                            },
+                            icon: const Icon(Icons.print),
+                            label: const Text("Imin"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: greenColor,
+                              foregroundColor: whiteColor,
+                            ),
+                          ),
+                          horizontalSpace(width: 10),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            label: const Text("CLOSE"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: appPrimaryColor,
+                              foregroundColor: whiteColor,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
