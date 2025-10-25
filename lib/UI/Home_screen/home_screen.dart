@@ -872,18 +872,18 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                               foregroundColor: whiteColor,
                             ),
                           ),
-                          horizontalSpace(width: 10),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await _printBillToSunmiOnly(context);
-                            },
-                            icon: const Icon(Icons.print),
-                            label: const Text("Sunmi"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: greenColor,
-                              foregroundColor: whiteColor,
-                            ),
-                          ),
+                          // horizontalSpace(width: 10),
+                          // ElevatedButton.icon(
+                          //   onPressed: () async {
+                          //     await _printBillToSunmiOnly(context);
+                          //   },
+                          //   icon: const Icon(Icons.print),
+                          //   label: const Text("Sunmi"),
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: greenColor,
+                          //     foregroundColor: whiteColor,
+                          //   ),
+                          // ),
                           horizontalSpace(width: 10),
                           ElevatedButton.icon(
                             onPressed: () {
@@ -1098,18 +1098,18 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                               foregroundColor: whiteColor,
                             ),
                           ),
-                          horizontalSpace(width: 10),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await _printBillToSunmiOnly(context);
-                            },
-                            icon: const Icon(Icons.print),
-                            label: const Text("Sunmi"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: greenColor,
-                              foregroundColor: whiteColor,
-                            ),
-                          ),
+                          // horizontalSpace(width: 10),
+                          // ElevatedButton.icon(
+                          //   onPressed: () async {
+                          //     await _printBillToSunmiOnly(context);
+                          //   },
+                          //   icon: const Icon(Icons.print),
+                          //   label: const Text("Sunmi"),
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: greenColor,
+                          //     foregroundColor: whiteColor,
+                          //   ),
+                          // ),
                           horizontalSpace(width: 10),
                           ElevatedButton.icon(
                             onPressed: () {
