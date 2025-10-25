@@ -50,7 +50,7 @@ dependencies:
   flutter_esc_pos_network: ^1.0.3
   image: ^4.0.17
   device_info_plus:
-
+  sunmi_printer_plus: ^4.1.1
 
 dev_dependencies:
   flutter_test:

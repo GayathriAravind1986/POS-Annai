@@ -38,6 +38,7 @@ import 'package:simple/UI/IminHelper/printer_helper.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:image/image.dart' as img;
 import 'package:simple/UI/KOT_printer_helper/printer_kot_helper.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 class FoodOrderingScreen extends StatelessWidget {
   final GlobalKey<FoodOrderingScreenViewState>? foodKey;
@@ -579,6 +580,57 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
     }
   }
 
+  /// sunmi Device - Printer
+  Future<void> _printBillToSunmiOnly(BuildContext context) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: appPrimaryColor),
+              SizedBox(height: 16),
+              Text("Printing to Sunmi device...",
+                  style: TextStyle(color: whiteColor)),
+            ],
+          ),
+        ),
+      );
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      await WidgetsBinding.instance.endOfFrame;
+
+      Uint8List? imageBytes = await captureMonochromeReceipt(normalReceiptKey);
+
+      if (imageBytes != null) {
+        await SunmiPrinter.printImage(imageBytes);
+        await SunmiPrinter.lineWrap(2);
+        await SunmiPrinter.cutPaper();
+
+        Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Bill printed successfully to Sunmi device!"),
+            backgroundColor: greenColor,
+          ),
+        );
+      } else {
+        throw Exception("Image capture failed: normalReceiptKey returned null");
+      }
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Sunmi Print failed: $e"),
+          backgroundColor: redColor,
+        ),
+      );
+    }
+  }
+
   Future<void> _printBillToIminOnly(BuildContext context) async {
     try {
       showDialog(
@@ -822,6 +874,18 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                           ),
                           horizontalSpace(width: 10),
                           ElevatedButton.icon(
+                            onPressed: () async {
+                              await _printBillToSunmiOnly(context);
+                            },
+                            icon: const Icon(Icons.print),
+                            label: const Text("Sunmi"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: greenColor,
+                              foregroundColor: whiteColor,
+                            ),
+                          ),
+                          horizontalSpace(width: 10),
+                          ElevatedButton.icon(
                             onPressed: () {
                               Navigator.pop(context);
                             },
@@ -1029,6 +1093,18 @@ class FoodOrderingScreenViewState extends State<FoodOrderingScreenView> {
                             },
                             icon: const Icon(Icons.print),
                             label: const Text("Imin"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: greenColor,
+                              foregroundColor: whiteColor,
+                            ),
+                          ),
+                          horizontalSpace(width: 10),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await _printBillToSunmiOnly(context);
+                            },
+                            icon: const Icon(Icons.print),
+                            label: const Text("Sunmi"),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: greenColor,
                               foregroundColor: whiteColor,

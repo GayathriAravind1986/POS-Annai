@@ -1,4 +1,4 @@
-package com.example.ramana
+package com.example.annai
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
@@ -11,7 +11,7 @@ import io.flutter.plugin.common.MethodChannel;
 
 //class MainActivity: FlutterActivity()
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.example.ramana/usb"
+    private val CHANNEL = "com.example.annai/usb"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

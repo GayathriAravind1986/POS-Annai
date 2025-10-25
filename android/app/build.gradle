@@ -27,7 +27,7 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 android {
-    namespace = "com.example.ramana"
+    namespace = "com.example.annai"
     compileSdkVersion 35
     ndkVersion = flutter.ndkVersion
 
@@ -42,7 +42,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.ramana"
+        applicationId = "com.example.annai"
         minSdkVersion 28
         versionCode 5
         versionName "1.0.1"

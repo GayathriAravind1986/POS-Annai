@@ -14,7 +14,7 @@
 
 
     <application
-        android:label="Ramanas"
+        android:label="Annai"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
