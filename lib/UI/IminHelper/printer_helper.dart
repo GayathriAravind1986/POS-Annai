@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:simple/Reusable/color.dart';
+import 'package:simple/Reusable/image.dart';
 
 Widget getThermalReceiptWidget({
   required String businessName,
@@ -32,6 +33,17 @@ Widget getThermalReceiptWidget({
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header section
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15.0),
+              child: Image.asset(
+                Images.logoWithName,
+                width: 125, // circle size
+                height: 125,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           Center(
             child: Column(
               children: [
@@ -168,27 +180,53 @@ Widget getThermalReceiptWidget({
               ),
             ),
           ),
-          // const SizedBox(height: 8),
+          const SizedBox(height: 8),
           // const Center(
           //   child: Text(
-          //     "Powered By",
+          //     "ஆயிரம் உணவுகள் வித விதமாக சாப்பிட்டாலும், அண்ணன் உணவகத்திற்கு ஈடாகாது...!",
           //     style: TextStyle(
           //       fontWeight: FontWeight.bold,
-          //       fontSize: 14, // Keep smaller for footer
+          //       fontSize: 16, // Increased from 12
           //       color: blackColor,
           //     ),
           //   ),
           // ),
-          // const Center(
-          //   child: Text(
-          //     "www.sentinixtechsolutions.com",
-          //     style: TextStyle(
-          //       fontWeight: FontWeight.bold,
-          //       fontSize: 14,
-          //       color: blackColor,
-          //     ),
-          //   ),
-          // ),
+          const Center(
+            child: Text(
+              "ஆயிரம் உணவுகள் வித விதமாக சாப்பிட்டாலும், அண்ணன் உணவகத்திற்கு ஈடாகாது...!",
+              textAlign: TextAlign.center,
+              softWrap: true,
+              maxLines: 3,
+              overflow: TextOverflow.visible,
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                height: 1.4,
+                color: blackColor,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Center(
+            child: Text(
+              "Powered By",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14, // Keep smaller for footer
+                color: blackColor,
+              ),
+            ),
+          ),
+          const Center(
+            child: Text(
+              "www.sentinixtechsolutions.com",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: blackColor,
+              ),
+            ),
+          ),
           const SizedBox(height: 40),
         ],
       ),

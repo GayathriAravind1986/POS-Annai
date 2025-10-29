@@ -185,29 +185,45 @@ Widget getThermalReceiptKOTWidget({
             ),
           ),
 
-          // const SizedBox(height: 8),
-
-          // Powered by section
-          // const Center(
-          //   child: Column(
-          //     children: [
-          //       Text(
-          //         "Powered By",
-          //         style: TextStyle(
-          //           fontSize: 12,
-          //           color: blackColor,
-          //         ),
-          //       ),
-          //       Text(
-          //         "www.sentinixtechsolutions.com",
-          //         style: TextStyle(
-          //           fontSize: 12,
-          //           color: blackColor,
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
+          const SizedBox(height: 8),
+          const Center(
+            child: Text(
+              "ஆயிரம் உணவுகள் வித விதமாக சாப்பிட்டாலும், அண்ணன் உணவகத்திற்கு ஈடாகாது...!",
+              textAlign: TextAlign.center,
+              softWrap: true,
+              maxLines: 3,
+              overflow: TextOverflow.visible,
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                height: 1.4,
+                color: blackColor,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Center(
+            child: Column(
+              children: [
+                Text(
+                  "Powered By",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: blackColor,
+                  ),
+                ),
+                Text(
+                  "www.sentinixtechsolutions.com",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: blackColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
 
           // Extra space for thermal printer cutting
           const SizedBox(height: 40),
