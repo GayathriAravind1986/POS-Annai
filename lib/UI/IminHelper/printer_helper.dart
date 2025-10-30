@@ -37,7 +37,7 @@ Widget getThermalReceiptWidget({
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15.0),
               child: Image.asset(
-                Images.logoWithName,
+                Images.logoBlackWithName,
                 width: 125, // circle size
                 height: 125,
                 fit: BoxFit.cover,
@@ -181,16 +181,6 @@ Widget getThermalReceiptWidget({
             ),
           ),
           const SizedBox(height: 8),
-          // const Center(
-          //   child: Text(
-          //     "ஆயிரம் உணவுகள் வித விதமாக சாப்பிட்டாலும், அண்ணன் உணவகத்திற்கு ஈடாகாது...!",
-          //     style: TextStyle(
-          //       fontWeight: FontWeight.bold,
-          //       fontSize: 16, // Increased from 12
-          //       color: blackColor,
-          //     ),
-          //   ),
-          // ),
           const Center(
             child: Text(
               "ஆயிரம் உணவுகள் வித விதமாக சாப்பிட்டாலும், அண்ணன் உணவகத்திற்கு ஈடாகாது...!",
